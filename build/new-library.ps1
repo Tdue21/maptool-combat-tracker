@@ -25,11 +25,11 @@ $version = "0.0.1"
     events = @(
         @{ 
             name = "onFirstInit" 
-            mts = "onFirstInit"
+            mts = "events/onFirstInit"
         }, 
         @{
             name = "onInit"
-            mts = "onInit"
+            mts = "events/onInit"
         })
     legacyEvents = @()
 }
@@ -39,4 +39,32 @@ New-Item -ItemType File -Path $libraryPath\$name\events.json -Value ($events | C
 New-Item -ItemType File -Path $libraryPath\$name\library.json -Value ($library | ConvertTo-Json)
 
 # Writing version to latest file
-$version | Out-File -FilePath $releasePath\$name-latest.txt 
+$version | Out-File -FilePath $releasePath\$name-latest.txt
+
+# Update tasks.json to add library name to inputs
+$tasksJsonPath = Join-Path -Path $PSScriptRoot -ChildPath "..\.vscode\tasks.json"
+if (Test-Path $tasksJsonPath) {
+    $tasksJson = Get-Content -Path $tasksJsonPath -Raw | ConvertFrom-Json
+    
+    # Find the library input
+    $libraryInput = $tasksJson.inputs | Where-Object { $_.id -eq "library" }
+    
+    if ($libraryInput) {
+        # Check if the library name already exists in options
+        if ($libraryInput.options -notcontains $name) {
+            # Add the new library name to options
+            $libraryInput.options += $name
+            
+            # Save the updated tasks.json
+            $tasksJson | ConvertTo-Json -Depth 10 | Set-Content -Path $tasksJsonPath
+            
+            Write-Host "Added '$name' to library input options in tasks.json"
+        } else {
+            Write-Host "Library '$name' already exists in tasks.json"
+        }
+    } else {
+        Write-Warning "Could not find 'library' input in tasks.json"
+    }
+} else {
+    Write-Warning "tasks.json not found at $tasksJsonPath"
+} 

@@ -1,0 +1,16 @@
+{
+  "website": "",
+  "license": "MIT/GPL/etc",
+  "namespace": "dovesoft.maptool-combat-tracker",
+  "name": "MapTool Combat Tracker",
+  "description": "A longer description of your add-on library",
+  "gitUrl": "https://github.com/Tdue21/maptool-combat-tracker.git",
+  "shortDescription": "A system agnostic combat tracker for MapTool",
+  "version": "0.0.1",
+  "authors": [
+    "tdue21"
+  ],
+  "readMeFile": "readme.md",
+  "allowsUriAccess": true,
+  "licenseFile": "license.txt"
+}
