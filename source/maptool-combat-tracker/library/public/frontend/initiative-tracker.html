@@ -2,17 +2,49 @@
 <html>
 
 <head>
-    <link rel="stylesheet" type="text/css" href="./css/Blinddate.css?cachelib=false">
-    <link rel="stylesheet" type="text/css" href="./css/philosopher.css?cachelib=false">
-    <link rel="stylesheet" type="text/css" href="./css/main.css?cachelib=false">
     <script src="./js/libs/vue.global-3.5.13.js"></script>
     <script src="./js/tools.js?cachelib=false"></script>
 
     <style>
+        :root {
+            /* Color scheme variables */
+            --bg-color-light: #fff;
+            --fg-color-light: #000;
+
+            /* Active theme variables (using Aeon as default) */
+            --background-color: var(--bg-color-light);
+            --foreground-color: var(--fg-color-light);
+            --header-bg: #005b7f;
+            --header-fg: #ffffff;
+            --row-color: #96B7D9;
+
+            /* Wrapper background - RGB values for transparency control */
+            --wrapper-bg-rgb: 0, 91, 127; /* RGB of --header-bg */
+            --wrapper-bg-opacity: 0.6;
+
+            /* Font variables */
+            --header-font: 'Arial', sans-serif;
+            --body-font: 'Arial', sans-serif;
+
+            --z-background: 0;
+            --z-content: 1;
+            --z-controls: 10;
+            --z-modal: 100;
+
+            --token-width: 80px;
+            --beam-height: 50px;
+            --token-image-size: 64px;
+        }
+
         body {
             margin: 0;
             padding: 0;
             background-color: var(--background-color);
+            background-image: url('../assets/background.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
             font-family: var(--body-font);
         }
 
@@ -24,42 +56,63 @@
             box-sizing: border-box;
         }
 
-        .controls-section {
+        /* Unified container for both rows */
+        .initiative-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            background-color: rgba(var(--wrapper-bg-rgb), var(--wrapper-bg-opacity));
+            border-radius: 8px;
+            padding: 5px;
+        }
+
+        /* Top row: controls */
+        .controls-row {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 20px;
-            padding: 15px;
-            background-color: var(--header-bg);
-            color: var(--header-fg);
-            border-radius: 8px;
-            margin-bottom: 20px;
+            padding-bottom: 15px;
         }
 
-        .controls-section .round-display {
-            font-size: 1.5em;
+        .controls-group {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .round-display {
+            font-size: 1.2em;
             font-weight: bold;
-            padding: 10px 20px;
+            padding: 5px 12px;
             background-color: rgba(0, 0, 0, 0.3);
             border-radius: 5px;
+            white-space: nowrap;
+            color: var(--header-fg);
         }
 
         .control-btn {
             padding: 0;
             border: none;
-            background: none;
+            background: rgba(255, 255, 255, 0.2);
             cursor: pointer;
-            width: 25px;
-            height: 25px;
+            width: 30px;
+            height: 30px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s;
+            border-radius: 5px;
         }
 
         .control-btn img {
-            max-width: 25px;
-            max-height: 25px;
+            max-width: 22px;
+            max-height: 22px;
             width: 100%;
             height: 100%;
             object-fit: contain;
@@ -67,37 +120,52 @@
 
         .control-btn:hover {
             transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.3);
         }
 
         .control-btn:active {
             transform: scale(0.95);
         }
 
-        .initiative-container {
+        /* Bottom row: tokens */
+        .tokens-row-container {
             display: flex;
             align-items: center;
             gap: 15px;
-            padding: 20px;
+            position: relative;
+        }
+
+        /* Beam effect behind tokens */
+        .tokens-row-container::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 60px;
+            right: 60px;
+            height: var(--beam-height);
             background-color: var(--row-color);
-            border-radius: 8px;
-            overflow-x: auto;
+            border-radius: 15px;
+            transform: translateY(-50%);
+            z-index: var(--z-background);
         }
 
         .nav-arrow {
             width: 50px;
             height: 50px;
             border: none;
-            background-color: var(--header-bg);
+            background-color: rgba(255, 255, 255, 0.5);
             color: var(--header-fg);
             font-size: 2em;
             border-radius: 50%;
             cursor: pointer;
             transition: all 0.3s;
             flex-shrink: 0;
+            position: relative;
+            z-index: var(--z-content);
         }
 
         .nav-arrow:hover {
-            background-color: var(--foreground-color);
+            background-color: rgba(255, 255, 255, 0.3);
             transform: scale(1.1);
         }
 
@@ -117,14 +185,16 @@
             overflow-x: auto;
             padding: 20px 10px;
             scroll-behavior: smooth;
+            position: relative;
+            z-index: var(--z-content);
         }
 
         .token-card {
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-width: 96px;
-            max-width: 96px;
+            min-width: var(--token-width);
+            max-width: var(--token-width);
             padding: 10px;
             border-radius: 8px;
             transition: all 0.3s;
@@ -139,27 +209,27 @@
 
         .token-card.player {
             border: 4px solid #28a745;
-            background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(40, 167, 69, 0.2));
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.7), rgba(40, 167, 69, 0.85));
         }
 
         .token-card.hostile {
             border: 4px solid #dc3545;
-            background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(220, 53, 69, 0.2));
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.7), rgba(220, 53, 69, 0.85));
         }
 
         .token-card.ally {
             border: 4px solid #007bff;
-            background: linear-gradient(135deg, rgba(0, 123, 255, 0.1), rgba(0, 123, 255, 0.2));
+            background: linear-gradient(135deg, rgba(0, 123, 255, 0.7), rgba(0, 123, 255, 0.85));
         }
 
         .token-card.neutral {
             border: 4px solid #ffc107;
-            background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 193, 7, 0.2));
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.7), rgba(255, 193, 7, 0.85));
         }
 
         .token-image-wrapper {
-            width: 80px;
-            height: 80px;
+            width: var(--token-image-size);
+            height: var(--token-image-size);
             border-radius: 50%;
             overflow: visible;
             margin-bottom: 10px;
@@ -174,8 +244,12 @@
             transition: filter 0.3s;
         }
 
-        .token-card:not(.active) .token-image-wrapper img {
+        .token-card .token-image-wrapper img {
             filter: grayscale(80%) brightness(0.6);
+        }
+
+        .token-card.active .token-image-wrapper img {
+            filter: none;
         }
 
         .initiative-badge {
@@ -195,7 +269,7 @@
             font-size: 0.9em;
             border: 2px solid white;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            z-index: 10;
+            z-index: var(--z-controls);
         }
 
         .initiative-input {
@@ -235,7 +309,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 100px;
+            max-width: calc(var(--token-width) - 16px);
         }
 
         .token-card:not(.active) .token-name {
@@ -326,75 +400,83 @@
 
 <body>
     <div id="app">
-        <!-- Controls Section -->
-        <div class="controls-section">
-            <button class="control-btn" @click="sortInitiative" title="Refresh initiative order.">
-                <img src="./images/refresh.png">
-            </button>
-            <button class="control-btn" @click="sortInitiative" title="Clear initiative and reset round counter.">
-                <img src="./images/clear.png">
-            </button>
-            <button class="control-btn" @click="sortInitiative" title="Reset initiative roster completely.">
-                <img src="./images/reset.png">
-            </button>
-
-            <button class="control-btn" @click="sortInitiative" title="Sort ascending (reverse order)">
-                <img src="./images/ascending.png">
-            </button>
-            <button class="control-btn" @click="sortInitiative" title="Sort descending (normal order)">
-                <img src="./images/descending.png">
-            </button>
-
-            <div class="round-display">
-                Round {{ round }}
-            </div>
-
-
-            <button class="control-btn" @click="nextRound" title="Advance to next round">
-                <img src="./images/prev.png">
-            </button>
-            <button class="control-btn" @click="nextRound" title="Advance to next round">
-                <img src="./images/next.png">
-            </button>
-        </div>
-
-        <!-- Initiative Tracker -->
-        <div class="initiative-container" v-if="tokens.length > 0">
-            <button class="nav-arrow" @click="previousToken" title="Previous token">
-                ‹
-            </button>
-
-            <div class="tokens-row" ref="tokensRow">
-                <div v-for="(token, index) in tokens" :key="token.id"
-                    :class="['token-card', token.affiliation, { active: index === currentIndex }]"
-                    @click="setCurrentToken(index)">
-
-                    <div class="token-image-wrapper">
-                        <img :src="token.image" :alt="token.name">
-                        <div class="initiative-badge">
-                            <input type="number" class="initiative-input" v-model.number="token.initiative"
-                                @change="updateInitiative(token)" @click.stop min="0" max="99">
-                        </div>
+        <!-- Unified Initiative Tracker Container -->
+        <div class="initiative-wrapper" v-if="tokens.length > 0">
+            <!-- Top Row: Tool Buttons and Round Counter -->
+            <div class="controls-row">
+                <div class="controls-group">
+                    <!-- Left Group: First 5 buttons -->
+                    <div class="button-group">
+                        <button class="control-btn" @click="refreshInitiative" title="Refresh initiative order.">
+                            <img src="./images/refresh.png">
+                        </button>
+                        <button class="control-btn" @click="clearInitiative" title="Clear initiative and reset round counter.">
+                            <img src="./images/clear.png">
+                        </button>
+                        <button class="control-btn" @click="resetInitiative" title="Reset initiative roster completely.">
+                            <img src="./images/reset.png">
+                        </button>
+                        <button class="control-btn" @click="sortInitiative('a')" title="Sort ascending (reverse order)">
+                            <img src="./images/ascending.png">
+                        </button>
+                        <button class="control-btn" @click="sortInitiative('d')" title="Sort descending (normal order)">
+                            <img src="./images/descending.png">
+                        </button>
                     </div>
 
-                    <div class="token-name" :title="token.name">
-                        {{ token.name }}
-                    </div>
-
-                    <div class="health-bar-container">
-                        <div class="health-bar" :class="getHealthClass(token)"
-                            :style="{ width: getHealthPercentage(token) + '%' }">
+                    <!-- Right Group: Round counter and navigation -->
+                    <div class="button-group">
+                        <button class="control-btn" @click="prevRound" title="Back to previous round">
+                            <img src="./images/prev.png">
+                        </button>
+                        <div class="round-display">
+                            Round {{ round }}
                         </div>
-                        <div class="health-text">
-                            {{ token.health.current }}/{{ token.health.max }}
-                        </div>
+                        <button class="control-btn" @click="nextRound" title="Advance to next round">
+                            <img src="./images/next.png">
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <button class="nav-arrow" @click="nextToken" title="Next token">
-                ›
-            </button>
+            <!-- Bottom Row: Token Cards -->
+            <div class="tokens-row-container">
+                <button class="nav-arrow" @click="previousToken" title="Previous token">
+                    ‹
+                </button>
+
+                <div class="tokens-row" ref="tokensRow">
+                    <div v-for="(token, index) in tokens" :key="token.id"
+                         :class="['token-card', token.affiliation, { active: index === currentIndex }]"
+                         @click="setCurrentToken(index)">
+
+                        <div class="token-image-wrapper">
+                            <img :src="token.image" :alt="token.name">
+                            <div class="initiative-badge">
+                                <input type="number" class="initiative-input" v-model.number="token.initiative"
+                                       @change="updateInitiative(token)" @click.stop min="0" max="99">
+                            </div>
+                        </div>
+
+                        <div class="token-name" :title="token.name">
+                            {{ token.name }}
+                        </div>
+
+                        <div class="health-bar-container">
+                            <div class="health-bar" :class="getHealthClass(token)"
+                                 :style="{ width: getHealthPercentage(token) + '%' }">
+                            </div>
+                            <div class="health-text">
+                                {{ token.health.current }}/{{ token.health.max }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="nav-arrow" @click="nextToken" title="Next token">
+                    ›
+                </button>
+            </div>
         </div>
 
         <!-- Empty State -->
@@ -427,82 +509,115 @@
 
         methods: {
             getHealthPercentage(token) {
-                if (!token.health || token.health.max === 0) return 0;
-                return Math.max(0, Math.min(100, (token.health.current / token.health.max) * 100));
+                try {
+                    if (!token.health || token.health.max === 0) return 0;
+                    return Math.max(0, Math.min(100, (token.health.current / token.health.max) * 100));
+                } catch (error) {
+                    console.error("Error calculating health percentage:", error);
+                }
             },
 
             getHealthClass(token) {
-                const percentage = this.getHealthPercentage(token);
-                if (percentage > 60) return 'healthy';
-                if (percentage > 30) return 'injured';
-                return 'critical';
+                try {
+                    const percentage = this.getHealthPercentage(token);
+                    if (percentage > 60) return 'healthy';
+                    if (percentage > 30) return 'injured';
+                    return 'critical';
+
+                } catch (error) {
+                    console.error("Error getting health class:", error);
+                }
             },
 
             async nextToken() {
-                if (this.currentIndex < this.tokens.length - 1) {
-                    this.currentIndex++;
-                    this.scrollToToken(this.currentIndex);
+                try {
+                    if (this.currentIndex < this.tokens.length - 1) {
+                        this.currentIndex++;
+                        this.scrollToToken(this.currentIndex);
 
-                    if (typeof MapTool !== 'undefined') {
-                        await Utils.nextInitiative();
-                        await this.loadInitiativeData();
-                    }
-                } else {
-                    // Wrap to beginning and advance round
-                    this.round++;
-                    this.currentIndex = 0;
-                    this.scrollToToken(0);
+                        if (typeof MapTool !== 'undefined') {
+                            await Utils.nextInitiative();
+                            await this.loadInitiativeData();
+                        }
+                    } else {
+                        // Wrap to beginning and advance round
+                        this.round++;
+                        this.currentIndex = 0;
+                        this.scrollToToken(0);
 
-                    if (typeof MapTool !== 'undefined') {
-                        await Utils.clearInitiative();
-                        await this.loadInitiativeData();
+                        if (typeof MapTool !== 'undefined') {
+                            await Utils.clearInitiative();
+                            await this.loadInitiativeData();
+                        }
                     }
+
+                } catch (error) {
+                    console.error('Failed to advance token:', error);
+                    // Optionally, show a toast notification to the user
                 }
             },
 
             async previousToken() {
-                if (this.currentIndex > 0) {
-                    this.currentIndex--;
-                    this.scrollToToken(this.currentIndex);
+                try {
+                    if (this.currentIndex > 0) {
+                        this.currentIndex--;
+                        this.scrollToToken(this.currentIndex);
 
-                    if (typeof MapTool !== 'undefined') {
-                        await Utils.prevInitiative();
-                        await this.loadInitiativeData();
-                    }
-                } else {
-                    // Wrap to end and decrement round (but not below 1)
-                    if (this.round > 1) {
-                        this.round--;
-                    }
-                    this.currentIndex = this.tokens.length - 1;
-                    this.scrollToToken(this.currentIndex);
+                        if (typeof MapTool !== 'undefined') {
+                            await Utils.prevInitiative();
+                            await this.loadInitiativeData();
+                        }
+                    } else {
+                        // Wrap to end and decrement round (but not below 1)
+                        if (this.round > 1) {
+                            this.round--;
+                        }
+                        this.currentIndex = this.tokens.length - 1;
+                        this.scrollToToken(this.currentIndex);
 
-                    if (typeof MapTool !== 'undefined') {
-                        await Utils.prevInitiative();
-                        await this.loadInitiativeData();
+                        if (typeof MapTool !== 'undefined') {
+                            await Utils.prevInitiative();
+                            await this.loadInitiativeData();
+                        }
                     }
+
+                } catch (error) {
+                    console.error('Failed to go to previous token:', error);
+                    // Optionally, show a toast notification to the user
                 }
             },
 
             setCurrentToken(index) {
-                this.currentIndex = index;
-                this.scrollToToken(index);
+                try {
+                    this.currentIndex = index;
+                    this.scrollToToken(index);
 
-                if (typeof MapTool !== 'undefined') {
-                    // Set initiative in MapTool
-                    const token = this.tokens[index];
-                    Utils.focusToken(token.id);
+                    if (typeof MapTool !== 'undefined') {
+                        // Set initiative in MapTool
+                        const token = this.tokens[index];
+                        Utils.focusToken(token.id);
+                    }
+
+                } catch (error) {
+                    console.error('Failed to set current token:', error);
+                    // Optionally, show a toast notification to the user
                 }
             },
 
             async updateInitiative(token) {
-                // Update initiative value
-                if (typeof MapTool !== 'undefined') {
-                    await Utils.setInitiative(token);
-                }
+                try {
+                    // Update initiative value
+                    if (typeof MapTool !== 'undefined') {
+                        await Utils.setInitiative(token);
+                    }
 
-                // Re-sort if needed (optional - you can remove this if you don't want auto-sort)
-                // this.sortInitiative();
+                    // Re-sort if needed (optional - you can remove this if you don't want auto-sort)
+                    // this.sortInitiative();
+
+                } catch (error) {
+                    console.error('Failed to update initiative:', error);
+                    // Optionally, show a toast notification to the user
+                }
             },
 
             scrollToToken(index) {
@@ -519,47 +634,109 @@
                 });
             },
 
-            async sortInitiative() {
-                this.tokens.sort((a, b) => b.initiative - a.initiative);
-                this.currentIndex = 0;
-                this.scrollToToken(0);
+            async sortInitiative(order) {
+                try {
+                    if (order === 'a') {
+                        this.tokens.sort((a, b) => a.initiative - b.initiative); // Ascending
+                    } else {
+                        this.tokens.sort((a, b) => b.initiative - a.initiative); // Descending
+                    }
 
-                if (typeof MapTool !== 'undefined') {
-                    await Utils.sortInitiative(false); // false = descending
-                    await this.loadInitiativeData();
+                    this.currentIndex = 0;
+                    this.scrollToToken(0);
+
+                    if (typeof MapTool !== 'undefined') {
+                        await Utils.sortInitiative(order === 'd'); // false = descending
+                        await this.loadInitiativeData();
+                    }
+
+                } catch (error) {
+                    console.error('Failed to sort initiative:', error);
+                    // Optionally, show a toast notification to the user
                 }
             },
 
             async clearInitiative() {
-                if (typeof MapTool !== 'undefined') {
-                    await Utils.clearInitiative();
-                    await this.loadInitiativeData();
-                }
-                this.currentIndex = 0;
-                this.round = 1;
-            },
-
-            async resetInitiative() {
-                if (confirm('Are you sure you want to reset initiative? This will remove all tokens.')) {
+                try {
                     if (typeof MapTool !== 'undefined') {
-                        await Utils.resetInitiative();
+                        await Utils.clearInitiative();
                         await this.loadInitiativeData();
-                    } else {
-                        this.tokens = [];
                     }
                     this.currentIndex = 0;
                     this.round = 1;
+
+                } catch (error) {
+                    console.error('Failed to clear initiative:', error);
+                    // Optionally, show a toast notification to the user
+                }
+            },
+
+            async resetInitiative() {
+                try {
+                    if (confirm('Are you sure you want to reset initiative? This will remove all tokens.')) {
+                        if (typeof MapTool !== 'undefined') {
+                            await Utils.resetInitiative();
+                            await this.loadInitiativeData();
+                        } else {
+                            this.tokens = [];
+                        }
+                        this.currentIndex = 0;
+                        this.round = 1;
+                    }
+
+                } catch (error) {
+                    console.error('Failed to reset initiative:', error);
+                    // Optionally, show a toast notification to the user
+                }
+            },
+
+            async refreshInitiative() {
+                try {
+                    if (typeof MapTool !== 'undefined') {
+                        await this.loadInitiativeData();
+                    }
+                    this.currentIndex = 0;
+                    this.scrollToToken(0);
+
+                } catch (error) {
+                    console.error('Failed to refresh initiative:', error);
+                    // Optionally, show a toast notification to the user
+                }
+            },
+
+            async prevRound() {
+                try {
+                    if (this.round > 1) {
+                        this.round--;
+                    }
+                    this.currentIndex = 0;
+                    this.scrollToToken(0);
+
+                    if (typeof MapTool !== 'undefined') {
+                        await Utils.clearInitiative();
+                        await this.loadInitiativeData();
+                    }
+
+                } catch (error) {
+                    console.error('Failed to go to previous round:', error);
+                    // Optionally, show a toast notification to the user
                 }
             },
 
             async nextRound() {
-                this.round++;
-                this.currentIndex = 0;
-                this.scrollToToken(0);
+                try {
+                    this.round++;
+                    this.currentIndex = 0;
+                    this.scrollToToken(0);
 
-                if (typeof MapTool !== 'undefined') {
-                    await Utils.clearInitiative();
-                    await this.loadInitiativeData();
+                    if (typeof MapTool !== 'undefined') {
+                        await Utils.clearInitiative();
+                        await this.loadInitiativeData();
+                    }
+
+                } catch (error) {
+                    console.error('Failed to advance to next round:', error);
+                    // Optionally, show a toast notification to the user
                 }
             },
 
@@ -618,17 +795,22 @@
             },
 
             async initialize() {
-                if (typeof MapTool !== 'undefined') {
-                    await this.loadInitiativeData();
-                } else {
-                    // Development mode - use mock data
-                    this.generateMockData();
-                }
+                try {
+                    if (typeof MapTool !== 'undefined') {
+                        await this.loadInitiativeData();
+                    } else {
+                        // Development mode - use mock data
+                        this.generateMockData();
+                    }
 
-                // Auto-scroll to current token on load
-                this.$nextTick(() => {
-                    this.scrollToToken(this.currentIndex);
-                });
+                    // Auto-scroll to current token on load
+                    this.$nextTick(() => {
+                        this.scrollToToken(this.currentIndex);
+                    });
+
+                } catch (error) {
+                    console.error('Initialization error:', error);
+                }
             }
         },
 
@@ -646,7 +828,12 @@
                     this.nextToken();
                 }
             });
+        },
+
+        beforeUnmount() {
+            window.removeEventListener('keydown', this.keyboardHandler);
         }
+
     }).mount('#app');
 </script>
 
