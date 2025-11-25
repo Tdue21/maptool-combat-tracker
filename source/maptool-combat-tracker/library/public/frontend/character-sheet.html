@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="./css/Blinddate.css?cachelib=false">
+    <link rel="stylesheet" type="text/css" href="./css/philosopher.css?cachelib=false">
+    <link rel="stylesheet" type="text/css" href="./css/main.css?cachelib=false">
+    <script src="./js/libs/vue.global-3.5.13.js"></script>
+    <script src="./js/tools.js?cachelib=false"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            font-family: var(--body-font);
+        }
+
+        #app {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .character-sheet {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .sheet-header {
+            background-color: var(--header-bg);
+            color: var(--header-fg);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .character-name {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .character-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            font-size: 0.9em;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-weight: bold;
+            opacity: 0.8;
+            font-size: 0.85em;
+            margin-bottom: 2px;
+        }
+
+        .section {
+            background-color: var(--row-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: var(--foreground-color);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--header-bg);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-box {
+            background-color: var(--header-bg);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-name {
+            font-size: 0.8em;
+            font-weight: bold;
+            color: var(--header-fg);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--header-fg);
+        }
+
+        .stat-modifier {
+            font-size: 1em;
+            color: var(--header-fg);
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .combat-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .combat-box {
+            background-color: var(--background-color);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid var(--header-bg);
+        }
+
+        .combat-label {
+            font-size: 0.85em;
+            font-weight: bold;
+            color: var(--foreground-color);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .combat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--foreground-color);
+        }
+
+        .hp-bar-container {
+            margin-top: 8px;
+            width: 100%;
+            height: 8px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .hp-bar {
+            height: 100%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .hp-bar.healthy {
+            background: linear-gradient(90deg, #28a745, #20c997);
+        }
+
+        .hp-bar.injured {
+            background: linear-gradient(90deg, #ffc107, #fd7e14);
+        }
+
+        .hp-bar.critical {
+            background: linear-gradient(90deg, #dc3545, #c82333);
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+        }
+
+        .skill-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            background-color: var(--background-color);
+            border-radius: 4px;
+        }
+
+        .skill-prof {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--foreground-color);
+            border-radius: 50%;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            flex-shrink: 0;
+        }
+
+        .skill-prof.proficient {
+            background-color: var(--header-bg);
+            color: var(--header-fg);
+        }
+
+        .skill-prof.expert {
+            background-color: #ffc107;
+            color: #000;
+        }
+
+        .skill-name {
+            flex: 1;
+            font-size: 0.9em;
+            color: var(--foreground-color);
+        }
+
+        .skill-ability {
+            font-size: 0.75em;
+            opacity: 0.6;
+            margin-left: 5px;
+        }
+
+        .skill-bonus {
+            font-weight: bold;
+            color: var(--foreground-color);
+            margin-left: 10px;
+        }
+
+        .features-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .feature-item {
+            background-color: var(--background-color);
+            padding: 12px;
+            border-radius: 4px;
+        }
+
+        .feature-name {
+            font-weight: bold;
+            color: var(--foreground-color);
+            margin-bottom: 5px;
+        }
+
+        .feature-description {
+            font-size: 0.9em;
+            color: var(--foreground-color);
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+
+        .spells-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .spell-level {
+            background-color: var(--background-color);
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        .spell-level-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--header-bg);
+        }
+
+        .spell-level-title {
+            font-weight: bold;
+            color: var(--foreground-color);
+        }
+
+        .spell-slots {
+            font-size: 0.9em;
+            color: var(--foreground-color);
+            opacity: 0.8;
+        }
+
+        .spell-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .spell-item {
+            padding: 8px;
+            background-color: var(--row-color);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .spell-item:hover {
+            transform: translateX(5px);
+            background-color: var(--header-bg);
+        }
+
+        .spell-name {
+            font-weight: bold;
+            color: var(--foreground-color);
+        }
+
+        .spell-details {
+            font-size: 0.85em;
+            color: var(--foreground-color);
+            opacity: 0.7;
+            margin-top: 3px;
+        }
+
+        .equipment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .equipment-item {
+            background-color: var(--background-color);
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .equipment-name {
+            font-weight: bold;
+            color: var(--foreground-color);
+            margin-bottom: 3px;
+        }
+
+        .equipment-stats {
+            font-size: 0.85em;
+            color: var(--foreground-color);
+            opacity: 0.7;
+        }
+
+        .notes-area {
+            width: 100%;
+            min-height: 150px;
+            background-color: var(--background-color);
+            color: var(--foreground-color);
+            border: 1px solid var(--header-bg);
+            border-radius: 4px;
+            padding: 12px;
+            font-family: inherit;
+            font-size: 0.9em;
+            resize: vertical;
+        }
+
+        .control-btn {
+            padding: 0;
+            border: none;
+            background: none;
+            cursor: pointer;
+            width: 25px;
+            height: 25px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .control-btn img {
+            max-width: 25px;
+            max-height: 25px;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .control-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        .actions-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: var(--header-bg);
+            border-radius: 8px;
+            justify-content: flex-end;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="character-sheet">
+            <!-- Actions Bar -->
+            <div class="actions-bar">
+                <button class="control-btn" @click="loadCharacter" title="Load character">
+                    <img src="./images/refresh.png">
+                </button>
+                <button class="control-btn" @click="saveCharacter" title="Save character">
+                    <img src="./images/descending.png">
+                </button>
+            </div>
+
+            <!-- Character Header -->
+            <div class="sheet-header">
+                <div class="character-name">{{ character.name }}</div>
+                <div class="character-info">
+                    <div class="info-item">
+                        <span class="info-label">Class & Level</span>
+                        <span>{{ character.class }} {{ character.level }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Race</span>
+                        <span>{{ character.race }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Background</span>
+                        <span>{{ character.background }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Alignment</span>
+                        <span>{{ character.alignment }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Experience Points</span>
+                        <span>{{ character.xp }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ability Scores -->
+            <div class="section">
+                <div class="section-title">Ability Scores</div>
+                <div class="stats-grid">
+                    <div class="stat-box" v-for="(score, ability) in character.abilities" :key="ability">
+                        <div class="stat-name">{{ ability }}</div>
+                        <div class="stat-value">{{ score }}</div>
+                        <div class="stat-modifier">{{ formatModifier(getModifier(score)) }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Combat Stats -->
+            <div class="section">
+                <div class="section-title">Combat Stats</div>
+                <div class="combat-stats">
+                    <div class="combat-box">
+                        <div class="combat-label">Armor Class</div>
+                        <div class="combat-value">{{ character.armorClass }}</div>
+                    </div>
+                    <div class="combat-box">
+                        <div class="combat-label">Initiative</div>
+                        <div class="combat-value">{{ formatModifier(character.initiative) }}</div>
+                    </div>
+                    <div class="combat-box">
+                        <div class="combat-label">Speed</div>
+                        <div class="combat-value">{{ character.speed }} ft</div>
+                    </div>
+                    <div class="combat-box">
+                        <div class="combat-label">Hit Points</div>
+                        <div class="combat-value">{{ character.hp.current }} / {{ character.hp.max }}</div>
+                        <div class="hp-bar-container">
+                            <div class="hp-bar" :class="getHPClass()" :style="{ width: getHPPercentage() + '%' }"></div>
+                        </div>
+                    </div>
+                    <div class="combat-box">
+                        <div class="combat-label">Hit Dice</div>
+                        <div class="combat-value">{{ character.hitDice.current }} / {{ character.hitDice.max }}</div>
+                    </div>
+                    <div class="combat-box">
+                        <div class="combat-label">Proficiency Bonus</div>
+                        <div class="combat-value">{{ formatModifier(character.proficiencyBonus) }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Saving Throws & Skills -->
+            <div class="section">
+                <div class="section-title">Saving Throws</div>
+                <div class="skills-grid">
+                    <div class="skill-item" v-for="(save, ability) in character.savingThrows" :key="ability">
+                        <div class="skill-prof" :class="{ proficient: save.proficient }">
+                            {{ save.proficient ? '●' : '' }}
+                        </div>
+                        <span class="skill-name">{{ ability }}</span>
+                        <span class="skill-bonus">{{ formatModifier(save.bonus) }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Skills</div>
+                <div class="skills-grid">
+                    <div class="skill-item" v-for="skill in character.skills" :key="skill.name">
+                        <div class="skill-prof" :class="{ proficient: skill.proficient, expert: skill.expertise }">
+                            {{ skill.expertise ? '◆' : (skill.proficient ? '●' : '') }}
+                        </div>
+                        <span class="skill-name">
+                            {{ skill.name }}
+                            <span class="skill-ability">({{ skill.ability }})</span>
+                        </span>
+                        <span class="skill-bonus">{{ formatModifier(skill.bonus) }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features & Traits -->
+            <div class="section">
+                <div class="section-title">Features & Traits</div>
+                <div class="features-list">
+                    <div class="feature-item" v-for="feature in character.features" :key="feature.name">
+                        <div class="feature-name">{{ feature.name }}</div>
+                        <div class="feature-description">{{ feature.description }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Spells -->
+            <div class="section" v-if="character.spells">
+                <div class="section-title">Spells</div>
+                <div class="combat-stats" style="margin-bottom: 15px;">
+                    <div class="combat-box">
+                        <div class="combat-label">Spell Save DC</div>
+                        <div class="combat-value">{{ character.spellSaveDC }}</div>
+                    </div>
+                    <div class="combat-box">
+                        <div class="combat-label">Spell Attack Bonus</div>
+                        <div class="combat-value">{{ formatModifier(character.spellAttackBonus) }}</div>
+                    </div>
+                </div>
+                <div class="spells-section">
+                    <div class="spell-level" v-for="level in spellLevels" :key="level.name">
+                        <div class="spell-level-header">
+                            <span class="spell-level-title">{{ level.name }}</span>
+                            <span class="spell-slots" v-if="level.slots">
+                                Slots: {{ level.slots.current }} / {{ level.slots.max }}
+                            </span>
+                        </div>
+                        <div class="spell-list">
+                            <div class="spell-item" v-for="spell in level.spells" :key="spell.name">
+                                <div class="spell-name">{{ spell.name }}</div>
+                                <div class="spell-details">
+                                    {{ spell.castingTime }} • {{ spell.range }} • {{ spell.components }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Equipment -->
+            <div class="section">
+                <div class="section-title">Equipment</div>
+                <div class="equipment-grid">
+                    <div class="equipment-item" v-for="item in character.equipment" :key="item.name">
+                        <div class="equipment-name">{{ item.name }}</div>
+                        <div class="equipment-stats">{{ item.stats }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="section">
+                <div class="section-title">Notes</div>
+                <textarea class="notes-area" v-model="character.notes" placeholder="Character notes..."></textarea>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    "use strict";
+
+    const { createApp } = Vue;
+
+    createApp({
+        data() {
+            return {
+                character: {
+                    name: "Character Name",
+                    class: "Fighter",
+                    level: 1,
+                    race: "Human",
+                    background: "Soldier",
+                    alignment: "Lawful Good",
+                    xp: 0,
+                    abilities: {
+                        STR: 16,
+                        DEX: 14,
+                        CON: 15,
+                        INT: 10,
+                        WIS: 12,
+                        CHA: 8
+                    },
+                    armorClass: 18,
+                    initiative: 2,
+                    speed: 30,
+                    hp: {
+                        current: 12,
+                        max: 12
+                    },
+                    hitDice: {
+                        current: 1,
+                        max: 1,
+                        type: "d10"
+                    },
+                    proficiencyBonus: 2,
+                    savingThrows: {
+                        STR: { proficient: true, bonus: 5 },
+                        DEX: { proficient: false, bonus: 2 },
+                        CON: { proficient: true, bonus: 4 },
+                        INT: { proficient: false, bonus: 0 },
+                        WIS: { proficient: false, bonus: 1 },
+                        CHA: { proficient: false, bonus: -1 }
+                    },
+                    skills: [
+                        { name: "Acrobatics", ability: "DEX", proficient: false, expertise: false, bonus: 2 },
+                        { name: "Animal Handling", ability: "WIS", proficient: false, expertise: false, bonus: 1 },
+                        { name: "Arcana", ability: "INT", proficient: false, expertise: false, bonus: 0 },
+                        { name: "Athletics", ability: "STR", proficient: true, expertise: false, bonus: 5 },
+                        { name: "Deception", ability: "CHA", proficient: false, expertise: false, bonus: -1 },
+                        { name: "History", ability: "INT", proficient: false, expertise: false, bonus: 0 },
+                        { name: "Insight", ability: "WIS", proficient: false, expertise: false, bonus: 1 },
+                        { name: "Intimidation", ability: "CHA", proficient: true, expertise: false, bonus: 1 },
+                        { name: "Investigation", ability: "INT", proficient: false, expertise: false, bonus: 0 },
+                        { name: "Medicine", ability: "WIS", proficient: false, expertise: false, bonus: 1 },
+                        { name: "Nature", ability: "INT", proficient: false, expertise: false, bonus: 0 },
+                        { name: "Perception", ability: "WIS", proficient: true, expertise: false, bonus: 3 },
+                        { name: "Performance", ability: "CHA", proficient: false, expertise: false, bonus: -1 },
+                        { name: "Persuasion", ability: "CHA", proficient: false, expertise: false, bonus: -1 },
+                        { name: "Religion", ability: "INT", proficient: false, expertise: false, bonus: 0 },
+                        { name: "Sleight of Hand", ability: "DEX", proficient: false, expertise: false, bonus: 2 },
+                        { name: "Stealth", ability: "DEX", proficient: false, expertise: false, bonus: 2 },
+                        { name: "Survival", ability: "WIS", proficient: true, expertise: false, bonus: 3 }
+                    ],
+                    features: [
+                        {
+                            name: "Fighting Style: Defense",
+                            description: "While you are wearing armor, you gain a +1 bonus to AC."
+                        },
+                        {
+                            name: "Second Wind",
+                            description: "You have a limited well of stamina that you can draw on to protect yourself from harm. On your turn, you can use a bonus action to regain hit points equal to 1d10 + your fighter level. Once you use this feature, you must finish a short or long rest before you can use it again."
+                        }
+                    ],
+                    spells: null,
+                    spellSaveDC: null,
+                    spellAttackBonus: null,
+                    equipment: [
+                        { name: "Longsword", stats: "1d8 slashing" },
+                        { name: "Chain Mail", stats: "AC 16" },
+                        { name: "Shield", stats: "+2 AC" },
+                        { name: "Javelin (x4)", stats: "1d6 piercing, thrown (30/120)" },
+                        { name: "Explorer's Pack", stats: "Adventuring gear" }
+                    ],
+                    notes: ""
+                }
+            }
+        },
+
+        computed: {
+            spellLevels() {
+                if (!this.character.spells) return [];
+                
+                return [
+                    {
+                        name: "Cantrips",
+                        slots: null,
+                        spells: this.character.spells.cantrips || []
+                    },
+                    {
+                        name: "1st Level",
+                        slots: this.character.spells.level1Slots || null,
+                        spells: this.character.spells.level1 || []
+                    },
+                    {
+                        name: "2nd Level",
+                        slots: this.character.spells.level2Slots || null,
+                        spells: this.character.spells.level2 || []
+                    },
+                    {
+                        name: "3rd Level",
+                        slots: this.character.spells.level3Slots || null,
+                        spells: this.character.spells.level3 || []
+                    },
+                    {
+                        name: "4th Level",
+                        slots: this.character.spells.level4Slots || null,
+                        spells: this.character.spells.level4 || []
+                    },
+                    {
+                        name: "5th Level",
+                        slots: this.character.spells.level5Slots || null,
+                        spells: this.character.spells.level5 || []
+                    },
+                    {
+                        name: "6th Level",
+                        slots: this.character.spells.level6Slots || null,
+                        spells: this.character.spells.level6 || []
+                    },
+                    {
+                        name: "7th Level",
+                        slots: this.character.spells.level7Slots || null,
+                        spells: this.character.spells.level7 || []
+                    },
+                    {
+                        name: "8th Level",
+                        slots: this.character.spells.level8Slots || null,
+                        spells: this.character.spells.level8 || []
+                    },
+                    {
+                        name: "9th Level",
+                        slots: this.character.spells.level9Slots || null,
+                        spells: this.character.spells.level9 || []
+                    }
+                ].filter(level => level.spells && level.spells.length > 0);
+            }
+        },
+
+        methods: {
+            getModifier(score) {
+                return Math.floor((score - 10) / 2);
+            },
+
+            formatModifier(value) {
+                return value >= 0 ? `+${value}` : `${value}`;
+            },
+
+            getHPPercentage() {
+                if (!this.character.hp || this.character.hp.max === 0) return 0;
+                return Math.max(0, Math.min(100, (this.character.hp.current / this.character.hp.max) * 100));
+            },
+
+            getHPClass() {
+                const percentage = this.getHPPercentage();
+                if (percentage > 60) return 'healthy';
+                if (percentage > 30) return 'injured';
+                return 'critical';
+            },
+
+            async loadCharacter() {
+                try {
+                    if (typeof MapTool !== 'undefined') {
+                        const data = await Utils.getCharacterData();
+                        this.character = data;
+                    }
+                } catch (error) {
+                    console.error('Error loading character data:', error);
+                }
+            },
+
+            async saveCharacter() {
+                try {
+                    if (typeof MapTool !== 'undefined') {
+                        await Utils.saveCharacterData(this.character);
+                        console.log('Character saved successfully');
+                    }
+                } catch (error) {
+                    console.error('Error saving character data:', error);
+                }
+            },
+
+            async initialize() {
+                if (typeof MapTool !== 'undefined') {
+                    await this.loadCharacter();
+                }
+            }
+        },
+
+        mounted() {
+            this.initialize();
+        }
+    }).mount('#app');
+</script>
+
+</html>

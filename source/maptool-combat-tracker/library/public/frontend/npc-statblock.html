@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="./css/Blinddate.css?cachelib=false">
+    <link rel="stylesheet" type="text/css" href="./css/philosopher.css?cachelib=false">
+    <link rel="stylesheet" type="text/css" href="./css/main.css?cachelib=false">
+    <script src="./js/libs/vue.global-3.5.13.js"></script>
+    <script src="./js/tools.js?cachelib=false"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            font-family: var(--body-font);
+        }
+
+        #app {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .statblock {
+            width: 100%;
+            max-width: 650px;
+            background: linear-gradient(135deg, #f5e8d8 0%, #f0dcc4 100%);
+            border: 2px solid #8b4513;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Philosopher', serif;
+            color: #3a1f0d;
+        }
+
+        .statblock-header {
+            background: linear-gradient(135deg, #8b0000 0%, #b22222 100%);
+            padding: 15px 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .creature-name {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .creature-type {
+            font-size: 0.95em;
+            margin: 5px 0 0 0;
+            font-style: italic;
+            opacity: 0.95;
+        }
+
+        .statblock-body {
+            padding: 20px;
+        }
+
+        .stat-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #8b4513, transparent);
+            margin: 15px 0;
+        }
+
+        .stat-divider.thick {
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #8b0000, transparent);
+            margin: 20px 0;
+        }
+
+        .armor-line {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .stat-label {
+            font-weight: bold;
+            color: #8b0000;
+        }
+
+        .hp-line {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .hp-value {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .hp-formula {
+            color: #666;
+            font-style: italic;
+        }
+
+        .speed-line {
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .abilities-section {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .ability-score {
+            text-align: center;
+            padding: 8px;
+            background: rgba(139, 0, 0, 0.1);
+            border: 1px solid #8b4513;
+            border-radius: 4px;
+        }
+
+        .ability-name {
+            font-weight: bold;
+            font-size: 0.75em;
+            text-transform: uppercase;
+            color: #8b0000;
+            margin-bottom: 3px;
+        }
+
+        .ability-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .ability-modifier {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .stat-line {
+            margin: 8px 0;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .stat-line-label {
+            font-weight: bold;
+            color: #8b0000;
+            display: inline;
+        }
+
+        .stat-line-value {
+            display: inline;
+        }
+
+        .traits-section {
+            margin: 15px 0;
+        }
+
+        .trait-block {
+            margin: 12px 0;
+        }
+
+        .trait-name {
+            font-weight: bold;
+            color: #8b0000;
+            font-size: 0.95em;
+            margin-bottom: 4px;
+        }
+
+        .trait-description {
+            font-size: 0.9em;
+            line-height: 1.5;
+            color: #3a1f0d;
+        }
+
+        .actions-header {
+            background: linear-gradient(90deg, transparent, #8b0000, transparent);
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 20px -20px 15px -20px;
+        }
+
+        .action-block {
+            margin: 12px 0;
+        }
+
+        .action-name {
+            font-weight: bold;
+            color: #8b0000;
+            font-size: 1em;
+            margin-bottom: 4px;
+        }
+
+        .action-attack {
+            font-style: italic;
+            font-size: 0.9em;
+            color: #555;
+            margin-bottom: 4px;
+        }
+
+        .action-description {
+            font-size: 0.9em;
+            line-height: 1.5;
+            color: #3a1f0d;
+        }
+
+        .legendary-header {
+            background: linear-gradient(90deg, transparent, #8b0000, transparent);
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 20px -20px 10px -20px;
+        }
+
+        .legendary-description {
+            font-size: 0.9em;
+            font-style: italic;
+            color: #555;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .cr-block {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: rgba(139, 0, 0, 0.1);
+            border: 2px solid #8b0000;
+            border-radius: 4px;
+            margin-top: 15px;
+        }
+
+        .cr-item {
+            text-align: center;
+        }
+
+        .cr-label {
+            font-size: 0.8em;
+            color: #8b0000;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .cr-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #3a1f0d;
+            margin-top: 3px;
+        }
+
+        .control-btn {
+            padding: 0;
+            border: none;
+            background: none;
+            cursor: pointer;
+            width: 25px;
+            height: 25px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .control-btn img {
+            max-width: 25px;
+            max-height: 25px;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .control-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        .actions-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: var(--header-bg);
+            border-radius: 8px;
+            justify-content: flex-end;
+            width: 100%;
+            max-width: 650px;
+        }
+
+        .damage-type {
+            display: inline-block;
+            padding: 2px 6px;
+            background: rgba(139, 69, 19, 0.2);
+            border-radius: 3px;
+            font-size: 0.85em;
+            margin: 0 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <!-- Actions Bar -->
+        <div class="actions-bar">
+            <button class="control-btn" @click="loadStatblock" title="Load statblock">
+                <img src="./images/refresh.png">
+            </button>
+            <button class="control-btn" @click="saveStatblock" title="Save statblock">
+                <img src="./images/descending.png">
+            </button>
+        </div>
+
+        <!-- Statblock -->
+        <div class="statblock">
+            <!-- Header -->
+            <div class="statblock-header">
+                <h1 class="creature-name">{{ creature.name }}</h1>
+                <p class="creature-type">{{ creature.type }}</p>
+            </div>
+
+            <!-- Body -->
+            <div class="statblock-body">
+                <!-- Armor Class -->
+                <div class="armor-line">
+                    <span><span class="stat-label">Armor Class</span> {{ creature.ac.value }}</span>
+                    <span class="hp-formula">({{ creature.ac.type }})</span>
+                </div>
+
+                <!-- Hit Points -->
+                <div class="hp-line">
+                    <span class="stat-label">Hit Points</span>
+                    <span class="hp-value">{{ creature.hp.current }}</span>
+                    <span class="hp-formula">({{ creature.hp.formula }})</span>
+                </div>
+
+                <!-- Speed -->
+                <div class="speed-line">
+                    <span class="stat-label">Speed</span> {{ formatSpeed(creature.speed) }}
+                </div>
+
+                <!-- Divider -->
+                <div class="stat-divider thick"></div>
+
+                <!-- Ability Scores -->
+                <div class="abilities-section">
+                    <div class="ability-score" v-for="(score, ability) in creature.abilities" :key="ability">
+                        <div class="ability-name">{{ ability }}</div>
+                        <div class="ability-value">{{ score }}</div>
+                        <div class="ability-modifier">{{ formatModifier(getModifier(score)) }}</div>
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div class="stat-divider thick"></div>
+
+                <!-- Saves -->
+                <div class="stat-line" v-if="hasSaves">
+                    <span class="stat-line-label">Saving Throws</span>
+                    <span class="stat-line-value">{{ formatSaves() }}</span>
+                </div>
+
+                <!-- Skills -->
+                <div class="stat-line" v-if="hasSkills">
+                    <span class="stat-line-label">Skills</span>
+                    <span class="stat-line-value">{{ formatSkills() }}</span>
+                </div>
+
+                <!-- Damage Resistances -->
+                <div class="stat-line" v-if="creature.damageResistances">
+                    <span class="stat-line-label">Damage Resistances</span>
+                    <span class="stat-line-value">{{ creature.damageResistances }}</span>
+                </div>
+
+                <!-- Damage Immunities -->
+                <div class="stat-line" v-if="creature.damageImmunities">
+                    <span class="stat-line-label">Damage Immunities</span>
+                    <span class="stat-line-value">{{ creature.damageImmunities }}</span>
+                </div>
+
+                <!-- Condition Immunities -->
+                <div class="stat-line" v-if="creature.conditionImmunities">
+                    <span class="stat-line-label">Condition Immunities</span>
+                    <span class="stat-line-value">{{ creature.conditionImmunities }}</span>
+                </div>
+
+                <!-- Senses -->
+                <div class="stat-line">
+                    <span class="stat-line-label">Senses</span>
+                    <span class="stat-line-value">{{ formatSenses() }}</span>
+                </div>
+
+                <!-- Languages -->
+                <div class="stat-line">
+                    <span class="stat-line-label">Languages</span>
+                    <span class="stat-line-value">{{ creature.languages || '—' }}</span>
+                </div>
+
+                <!-- Challenge Rating -->
+                <div class="stat-line">
+                    <span class="stat-line-label">Challenge</span>
+                    <span class="stat-line-value">{{ creature.cr }} ({{ creature.xp }} XP)</span>
+                </div>
+
+                <!-- Proficiency Bonus -->
+                <div class="stat-line">
+                    <span class="stat-line-label">Proficiency Bonus</span>
+                    <span class="stat-line-value">{{ formatModifier(creature.proficiencyBonus) }}</span>
+                </div>
+
+                <!-- Divider -->
+                <div class="stat-divider thick"></div>
+
+                <!-- Traits -->
+                <div class="traits-section" v-if="creature.traits && creature.traits.length > 0">
+                    <div class="trait-block" v-for="trait in creature.traits" :key="trait.name">
+                        <div class="trait-name">{{ trait.name }}.</div>
+                        <div class="trait-description" v-html="trait.description"></div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="actions-header">Actions</div>
+                <div class="traits-section">
+                    <div class="action-block" v-for="action in creature.actions" :key="action.name">
+                        <div class="action-name">{{ action.name }}.</div>
+                        <div class="action-attack" v-if="action.attack">{{ action.attack }}</div>
+                        <div class="action-description" v-html="action.description"></div>
+                    </div>
+                </div>
+
+                <!-- Bonus Actions -->
+                <div v-if="creature.bonusActions && creature.bonusActions.length > 0">
+                    <div class="actions-header">Bonus Actions</div>
+                    <div class="traits-section">
+                        <div class="action-block" v-for="action in creature.bonusActions" :key="action.name">
+                            <div class="action-name">{{ action.name }}.</div>
+                            <div class="action-attack" v-if="action.attack">{{ action.attack }}</div>
+                            <div class="action-description" v-html="action.description"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reactions -->
+                <div v-if="creature.reactions && creature.reactions.length > 0">
+                    <div class="actions-header">Reactions</div>
+                    <div class="traits-section">
+                        <div class="action-block" v-for="reaction in creature.reactions" :key="reaction.name">
+                            <div class="action-name">{{ reaction.name }}.</div>
+                            <div class="action-description" v-html="reaction.description"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Legendary Actions -->
+                <div v-if="creature.legendaryActions && creature.legendaryActions.length > 0">
+                    <div class="legendary-header">Legendary Actions</div>
+                    <div class="legendary-description">
+                        {{ creature.name }} can take {{ creature.legendaryActionsPerRound || 3 }} legendary actions, choosing from the options below. Only one legendary action option can be used at a time and only at the end of another creature's turn. {{ creature.name }} regains spent legendary actions at the start of its turn.
+                    </div>
+                    <div class="traits-section">
+                        <div class="action-block" v-for="action in creature.legendaryActions" :key="action.name">
+                            <div class="action-name">{{ action.name }}{{ action.cost > 1 ? ` (Costs ${action.cost} Actions)` : '' }}.</div>
+                            <div class="action-description" v-html="action.description"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lair Actions -->
+                <div v-if="creature.lairActions && creature.lairActions.length > 0">
+                    <div class="legendary-header">Lair Actions</div>
+                    <div class="legendary-description">
+                        On initiative count 20 (losing initiative ties), {{ creature.name }} can take one lair action to cause one of the following effects:
+                    </div>
+                    <div class="traits-section">
+                        <div class="action-block" v-for="(action, index) in creature.lairActions" :key="index">
+                            <div class="action-description" v-html="action"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    "use strict";
+
+    const { createApp } = Vue;
+
+    createApp({
+        data() {
+            return {
+                creature: {
+                    name: "Ancient Red Dragon",
+                    type: "Gargantuan Dragon, Chaotic Evil",
+                    ac: {
+                        value: 22,
+                        type: "natural armor"
+                    },
+                    hp: {
+                        current: 546,
+                        formula: "28d20 + 252"
+                    },
+                    speed: {
+                        walk: 40,
+                        climb: 40,
+                        fly: 80
+                    },
+                    abilities: {
+                        STR: 30,
+                        DEX: 10,
+                        CON: 29,
+                        INT: 18,
+                        WIS: 15,
+                        CHA: 23
+                    },
+                    saves: {
+                        DEX: 7,
+                        CON: 16,
+                        WIS: 9,
+                        CHA: 13
+                    },
+                    skills: {
+                        Perception: 16,
+                        Stealth: 7
+                    },
+                    damageImmunities: "Fire",
+                    senses: {
+                        blindsight: 60,
+                        darkvision: 120,
+                        passivePerception: 26
+                    },
+                    languages: "Common, Draconic",
+                    cr: "24",
+                    xp: "62,000",
+                    proficiencyBonus: 7,
+                    traits: [
+                        {
+                            name: "Legendary Resistance (3/Day)",
+                            description: "If the dragon fails a saving throw, it can choose to succeed instead."
+                        },
+                        {
+                            name: "Frightful Presence",
+                            description: "Each creature of the dragon's choice that is within 120 feet of the dragon and aware of it must succeed on a DC 21 Wisdom saving throw or become frightened for 1 minute. A creature can repeat the saving throw at the end of each of its turns, ending the effect on itself on a success. If a creature's saving throw is successful or the effect ends for it, the creature is immune to the dragon's Frightful Presence for the next 24 hours."
+                        }
+                    ],
+                    actions: [
+                        {
+                            name: "Multiattack",
+                            description: "The dragon can use its Frightful Presence. It then makes three attacks: one with its bite and two with its claws."
+                        },
+                        {
+                            name: "Bite",
+                            attack: "Melee Weapon Attack: +17 to hit, reach 15 ft., one target.",
+                            description: "<em>Hit:</em> 21 (2d10 + 10) piercing damage plus 14 (4d6) fire damage."
+                        },
+                        {
+                            name: "Claw",
+                            attack: "Melee Weapon Attack: +17 to hit, reach 10 ft., one target.",
+                            description: "<em>Hit:</em> 17 (2d6 + 10) slashing damage."
+                        },
+                        {
+                            name: "Tail",
+                            attack: "Melee Weapon Attack: +17 to hit, reach 20 ft., one target.",
+                            description: "<em>Hit:</em> 19 (2d8 + 10) bludgeoning damage."
+                        },
+                        {
+                            name: "Fire Breath (Recharge 5-6)",
+                            description: "The dragon exhales fire in a 90-foot cone. Each creature in that area must make a DC 24 Dexterity saving throw, taking 91 (26d6) fire damage on a failed save, or half as much damage on a successful one."
+                        }
+                    ],
+                    legendaryActions: [
+                        {
+                            name: "Detect",
+                            cost: 1,
+                            description: "The dragon makes a Wisdom (Perception) check."
+                        },
+                        {
+                            name: "Tail Attack",
+                            cost: 1,
+                            description: "The dragon makes a tail attack."
+                        },
+                        {
+                            name: "Wing Attack",
+                            cost: 2,
+                            description: "The dragon beats its wings. Each creature within 15 feet of the dragon must succeed on a DC 25 Dexterity saving throw or take 17 (2d6 + 10) bludgeoning damage and be knocked prone. The dragon can then fly up to half its flying speed."
+                        }
+                    ],
+                    legendaryActionsPerRound: 3
+                }
+            }
+        },
+
+        computed: {
+            hasSaves() {
+                return this.creature.saves && Object.keys(this.creature.saves).length > 0;
+            },
+
+            hasSkills() {
+                return this.creature.skills && Object.keys(this.creature.skills).length > 0;
+            }
+        },
+
+        methods: {
+            getModifier(score) {
+                return Math.floor((score - 10) / 2);
+            },
+
+            formatModifier(value) {
+                return value >= 0 ? `+${value}` : `${value}`;
+            },
+
+            formatSpeed(speed) {
+                const parts = [];
+                
+                if (speed.walk) {
+                    parts.push(`${speed.walk} ft.`);
+                }
+                if (speed.burrow) {
+                    parts.push(`burrow ${speed.burrow} ft.`);
+                }
+                if (speed.climb) {
+                    parts.push(`climb ${speed.climb} ft.`);
+                }
+                if (speed.fly) {
+                    const hover = speed.hover ? ' (hover)' : '';
+                    parts.push(`fly ${speed.fly} ft.${hover}`);
+                }
+                if (speed.swim) {
+                    parts.push(`swim ${speed.swim} ft.`);
+                }
+
+                return parts.join(', ');
+            },
+
+            formatSaves() {
+                const saves = [];
+                for (const [ability, bonus] of Object.entries(this.creature.saves)) {
+                    saves.push(`${ability} ${this.formatModifier(bonus)}`);
+                }
+                return saves.join(', ');
+            },
+
+            formatSkills() {
+                const skills = [];
+                for (const [skill, bonus] of Object.entries(this.creature.skills)) {
+                    skills.push(`${skill} ${this.formatModifier(bonus)}`);
+                }
+                return skills.join(', ');
+            },
+
+            formatSenses() {
+                const senses = [];
+                const s = this.creature.senses;
+
+                if (s.blindsight) {
+                    senses.push(`blindsight ${s.blindsight} ft.`);
+                }
+                if (s.darkvision) {
+                    senses.push(`darkvision ${s.darkvision} ft.`);
+                }
+                if (s.tremorsense) {
+                    senses.push(`tremorsense ${s.tremorsense} ft.`);
+                }
+                if (s.truesight) {
+                    senses.push(`truesight ${s.truesight} ft.`);
+                }
+                
+                senses.push(`passive Perception ${s.passivePerception}`);
+
+                return senses.join(', ');
+            },
+
+            async loadStatblock() {
+                try {
+                    if (typeof MapTool !== 'undefined') {
+                        const data = await Utils.getStatblockData();
+                        this.creature = data;
+                    }
+                } catch (error) {
+                    console.error('Error loading statblock data:', error);
+                }
+            },
+
+            async saveStatblock() {
+                try {
+                    if (typeof MapTool !== 'undefined') {
+                        await Utils.saveStatblockData(this.creature);
+                        console.log('Statblock saved successfully');
+                    }
+                } catch (error) {
+                    console.error('Error saving statblock data:', error);
+                }
+            },
+
+            async initialize() {
+                if (typeof MapTool !== 'undefined') {
+                    await this.loadStatblock();
+                }
+            }
+        },
+
+        mounted() {
+            this.initialize();
+        }
+    }).mount('#app');
+</script>
+
+</html>
