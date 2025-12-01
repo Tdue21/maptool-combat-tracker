@@ -1,0 +1,16 @@
+{
+  "description": "A longer description of your add-on library",
+  "version": "0.0.1",
+  "readMeFile": "readme.md",
+  "website": "",
+  "authors": [
+    "THDU"
+  ],
+  "licenseFile": "license.txt",
+  "namespace": "org.maptool.THDU.maptool-party-manager",
+  "shortDescription": "A short description of your add-on library",
+  "allowsUriAccess": true,
+  "gitUrl": "",
+  "name": "maptool-party-manager",
+  "license": "MIT/GPL/etc"
+}

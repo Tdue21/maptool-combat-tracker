@@ -1,0 +1,215 @@
+:root {
+  --bg-color-light: #fff;
+  --fg-color-light: #000;
+
+  --header-bg-aeon: #A4181C;
+  --header-fg-aeon: #fff;
+  --row-color-aeon: #F4ADB2;
+
+  --header-bg-aberrant: #000;
+  --header-fg-aberrant: #FEC00F;
+  --row-color-aberrant: #F9E19F;
+
+  --header-bg-continuum: #005b7f;
+  --header-fg-continuum: #fff;
+  --row-color-continuum: #96B7D9;
+
+  --background-color: var(--bg-color-light);
+  --foreground-color: var(--fg-color-light);
+  --header-bg: var(--header-bg-aeon);
+  --header-fg: var(--header-fg-aeon);
+  --row-color: var(--row-color-aeon);
+
+  --header-font: Blinddate;
+  --body-font: Philosopher;
+
+  background-color: var(--background-color);
+  color: var(--foreground-color);
+  font-family: var(--body-font);
+}
+
+html,
+body {
+  margin: 0px;
+  padding: 0px;
+  height: 100%;
+  width: 100%;
+  background-color: var(--background-color);
+  color: var(--foreground-color);
+  font-family: var(--body-font);
+  font-size: 10pt;
+}
+
+h1,h2,h3,h4,h5,h6 {
+  margin: 10px 0px;
+  padding: 10px;
+  text-align: center;
+  color: var(--header-fg);
+  font-family: var(--header-font);
+  background-color: var(--header-bg);
+}
+
+button {
+  font-size: 10pt;
+  height: 25px;
+  border-radius: 3px;
+  border: 1px solid #666;
+  padding: 1px;
+  min-width: 120px;
+  background-color: #eee;
+  font-family: var(--body-font);
+}
+
+button:hover {
+  background-color: #ddd;
+}
+
+button:active {
+  background-color: #aaa;
+}
+
+button:disabled {
+  background-color: #eee;
+  color: #888;
+}
+
+select {
+  height: 21px;
+  border-radius: 4px;
+  border: 1px solid #888;
+  padding: 1px;
+  padding-left: 6px
+}
+
+input {
+  height: 21px;
+  border-radius: 4px;
+  border: 1px solid #888;
+  padding: 1px;
+  padding-left: 6px
+}
+
+.document {
+  /* 
+    width: 80%;
+    margin: 0 auto;
+    border: 1px solid #000; 
+    box-shadow: 5px 5px 10px #000;
+    */
+  padding: 10px;
+  background-color: var(--background-color);
+}
+
+.header {
+  width: calc(100% - 20px);
+  padding: 10px;
+  color: var(--header-fg);
+  background-color: var(--header-bg);
+  text-align: center;
+  font-family: var(--header-font);
+  font-size: 2.0em;
+}
+
+.input {
+  display: grid;
+  gap: 5px;
+  grid-template-columns: 1fr 2fr;
+  margin-bottom: 5px;
+}
+
+.input>span {
+  font-family: var(--body-font);
+}
+
+/****************************************************
+ * 
+ *  Classes related to dot controls
+ * 
+ ****************************************************/
+
+.dot-value {
+  display: flex;
+  justify-content: right;
+  justify-items: right;
+  text-align: right;
+  margin: 0px;
+  padding: 0px;
+}
+
+.dot {
+  align-self: top;
+  cursor: pointer;
+  margin: 0px;
+  padding: 0px;
+}
+
+.dot>img {
+  width: 20px;
+  height: 20px;
+  margin: 0px;
+  padding: 1px;
+}
+
+
+/****************************************************
+ * 
+ *  Classes related to toggle control
+ * 
+ ****************************************************/
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ddd;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: var(--header-fg);
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked+.slider {
+  background-color: var(--header-bg);
+}
+
+input:focus+.slider {
+  box-shadow: 0 0 1px var(--header-bg);
+}
+
+input:checked+.slider:before {
+  transform: translateX(18px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 18px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
