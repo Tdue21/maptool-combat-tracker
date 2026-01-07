@@ -5,6 +5,7 @@
     <link rel="stylesheet" type="text/css" href="./css/Blinddate.css?cachelib=false">
     <link rel="stylesheet" type="text/css" href="./css/philosopher.css?cachelib=false">
     <link rel="stylesheet" type="text/css" href="./css/main.css?cachelib=false">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="./js/libs/vue.global-3.5.13.js"></script>
     <script src="./js/tools.js?cachelib=false"></script>
 
@@ -31,16 +32,6 @@
             max-width: 1400px;
             margin: 0 auto;
             width: 100%;
-        }
-
-        .actions-bar {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: var(--header-bg);
-            border-radius: 8px;
-            justify-content: flex-end;
         }
 
         .control-btn {
@@ -75,12 +66,11 @@
         .tabs-container {
             display: flex;
             gap: 5px;
-            margin-bottom: 20px;
             border-bottom: 2px solid var(--header-bg);
         }
 
         .tab {
-            padding: 12px 24px;
+            padding: 12px 24px 24px 24px;
             background-color: var(--row-color);
             color: var(--foreground-color);
             border: none;
@@ -109,7 +99,7 @@
             overflow-y: auto;
             padding: 20px;
             background-color: var(--row-color);
-            border-radius: 8px;
+            border-radius: 0 0 8px 8px;
         }
 
         /* Party Manager Styles */
@@ -502,21 +492,447 @@
             margin: 0;
             font-size: 1em;
         }
+
+        /* Party Table View Styles */
+        .party-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--background-color);
+        }
+
+        .party-table thead {
+            background-color: var(--header-bg);
+            color: var(--header-fg);
+            font-weight: bold;
+        }
+
+        .party-table th,
+        .party-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--header-bg);
+        }
+
+        .party-table th {
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            background-color: var(--header-bg);
+            z-index: 10;
+        }
+
+        .party-table tbody tr {
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+
+        .party-table tbody tr:hover {
+            background-color: var(--row-color);
+        }
+
+        .party-table .avatar-cell {
+            width: 60px;
+        }
+
+        .party-table .table-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--header-bg);
+        }
+
+        .party-table .name-cell {
+            font-weight: bold;
+            color: var(--foreground-color);
+        }
+
+        .party-table .class-cell {
+            color: var(--foreground-color);
+            opacity: 0.8;
+        }
+
+        .party-table .hp-cell {
+            min-width: 200px;
+        }
+
+        .party-table .hp-inline {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .party-table .hp-bar-small {
+            flex: 1;
+            height: 12px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .party-table .hp-bar-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+            border-radius: 6px;
+        }
+
+        .party-table .hp-bar-fill.healthy {
+            background: linear-gradient(90deg, #28a745, #20c997);
+        }
+
+        .party-table .hp-bar-fill.injured {
+            background: linear-gradient(90deg, #ffc107, #fd7e14);
+        }
+
+        .party-table .hp-bar-fill.critical {
+            background: linear-gradient(90deg, #dc3545, #c82333);
+        }
+
+        .party-table .hp-value {
+            min-width: 60px;
+            text-align: right;
+            font-weight: bold;
+            color: var(--foreground-color);
+        }
+
+        /* View Toggle Switch */
+        .view-toggle-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .command-buttons {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background-color: var(--row-color);
+            border-radius: 20px;
+            padding: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .command-btn {
+            padding: 8px 20px;
+            background-color: transparent;
+            color: var(--foreground-color);
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            line-height: 1;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .command-btn:hover {
+            background-color: var(--header-bg);
+            color: var(--header-fg);
+        }
+
+        .command-btn:active {
+            transform: scale(0.98);
+        }
+
+        .toggle-switch {
+            display: inline-flex;
+            align-items: center;
+            background-color: var(--row-color);
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .toggle-option {
+            padding: 8px 12px;
+            border-radius: 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            line-height: 1;
+            color: var(--foreground-color);
+            opacity: 0.6;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            border: none;
+            background-color: transparent;
+        }
+
+        .toggle-option:first-child {
+            border-radius: 20px 0 0 20px;
+        }
+
+        .toggle-option:last-child {
+            border-radius: 0 20px 20px 0;
+        }
+
+        .toggle-option:hover {
+            opacity: 0.8;
+        }
+
+        .toggle-option.active {
+            background-color: var(--header-bg);
+            color: var(--header-fg);
+            opacity: 1;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Encounter Table View */
+        .encounter-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--background-color);
+        }
+
+        .encounter-table thead {
+            background-color: var(--header-bg);
+            color: var(--header-fg);
+            font-weight: bold;
+        }
+
+        .encounter-table th,
+        .encounter-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--header-bg);
+        }
+
+        .encounter-table tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        .encounter-table tbody tr:hover {
+            background-color: var(--row-color);
+        }
+
+        .encounter-table .difficulty-cell {
+            font-weight: bold;
+        }
+
+        .encounter-table .actions-cell {
+            white-space: nowrap;
+        }
+
+        .encounter-table .action-btn-small {
+            padding: 4px 8px;
+            margin-right: 5px;
+            background-color: var(--header-bg);
+            color: var(--header-fg);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: opacity 0.2s;
+        }
+
+        .encounter-table .action-btn-small:hover {
+            opacity: 0.8;
+        }
+
+        /* Location Table View */
+        .location-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--background-color);
+        }
+
+        .location-table thead {
+            background-color: var(--header-bg);
+            color: var(--header-fg);
+            font-weight: bold;
+        }
+
+        .location-table th,
+        .location-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--header-bg);
+        }
+
+        .location-table tbody tr {
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+
+        .location-table tbody tr:hover {
+            background-color: var(--row-color);
+        }
+
+        .location-table .type-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background-color: var(--header-bg);
+            color: var(--header-fg);
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .location-table .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .location-table .status-discovered {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .location-table .status-undiscovered {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background-color: var(--background-color);
+            border: 2px solid var(--header-bg);
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            background-color: var(--header-bg);
+            color: var(--header-fg);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .modal-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--header-fg);
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s;
+        }
+
+        .modal-close:hover {
+            opacity: 0.7;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: bold;
+            color: var(--foreground-color);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--row-color);
+            color: var(--foreground-color);
+            border: 1px solid var(--header-bg);
+            border-radius: 4px;
+            font-size: 1em;
+            font-family: var(--body-font);
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--header-fg);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            border-top: 1px solid var(--header-bg);
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-btn-primary {
+            background-color: var(--header-bg);
+            color: var(--header-fg);
+        }
+
+        .modal-btn-primary:hover {
+            opacity: 0.8;
+        }
+
+        .modal-btn-secondary {
+            background-color: var(--row-color);
+            color: var(--foreground-color);
+        }
+
+        .modal-btn-secondary:hover {
+            background-color: var(--header-bg);
+            color: var(--header-fg);
+        }
     </style>
 </head>
 
 <body>
     <div id="app">
         <div class="manager-container">
-            <!-- Actions Bar -->
-            <div class="actions-bar">
-                <button class="control-btn" @click="loadData" title="Refresh data">
-                    <img src="./images/refresh.png">
-                </button>
-                <button class="control-btn" @click="saveData" title="Save data">
-                    <img src="./images/descending.png">
-                </button>
-            </div>
 
             <!-- Tabs -->
             <div class="tabs-container">
@@ -535,7 +951,25 @@
             <div class="tab-content">
                 <!-- Party Manager -->
                 <div v-if="activeTab === 'party'">
-                    <div class="party-grid" v-if="party.length > 0">
+                    <!-- View Toggle -->
+                    <div class="view-toggle-container">
+                        <div class="command-buttons">
+                            <button class="command-btn" @click="addCharacter">Add Character</button>
+                            <button class="command-btn" @click="makeTokens">Make Tokens</button>
+                            <button class="command-btn" @click="createPoll">Create Poll</button>
+                            <button class="command-btn" @click="viewResults">Results</button>
+                        </div>
+                        <div class="toggle-switch">
+                            <div class="toggle-option" :class="{ active: partyViewMode === 'cards' }" @click="partyViewMode = 'cards'" title="Cards View">
+                                <i class="fas fa-grip"></i>
+                            </div>
+                            <div class="toggle-option" :class="{ active: partyViewMode === 'table' }" @click="partyViewMode = 'table'" title="Table View">
+                                <i class="fas fa-list"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Cards View -->
+                    <div v-if="partyViewMode === 'cards' && party.length > 0" class="party-grid">
                         <div class="party-member-card" v-for="member in party" :key="member.id" @click="selectPartyMember(member)">
                             <div class="party-member-header">
                                 <img :src="member.avatar" :alt="member.name" class="party-member-avatar">
@@ -574,7 +1008,50 @@
                             </div>
                         </div>
                     </div>
-                    <div class="empty-state" v-else>
+
+                    <!-- Table View -->
+                    <div v-if="partyViewMode === 'table' && party.length > 0">
+                        <table class="party-table">
+                            <thead>
+                                <tr>
+                                    <th class="avatar-cell"></th>
+                                    <th>Name</th>
+                                    <th>Class</th>
+                                    <th>Level</th>
+                                    <th>AC</th>
+                                    <th>Initiative</th>
+                                    <th>Speed</th>
+                                    <th>Perception</th>
+                                    <th class="hp-cell">Hit Points</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="member in party" :key="member.id" @click="selectPartyMember(member)">
+                                    <td class="avatar-cell">
+                                        <img :src="member.avatar" :alt="member.name" class="table-avatar">
+                                    </td>
+                                    <td class="name-cell">{{ member.name }}</td>
+                                    <td class="class-cell">{{ member.class }}</td>
+                                    <td>{{ member.level }}</td>
+                                    <td>{{ member.ac }}</td>
+                                    <td>{{ formatModifier(member.initiative) }}</td>
+                                    <td>{{ member.speed }} ft</td>
+                                    <td>{{ member.passivePerception }}</td>
+                                    <td class="hp-cell">
+                                        <div class="hp-inline">
+                                            <div class="hp-bar-small">
+                                                <div class="hp-bar-fill" :class="getHPClass(member)" :style="{ width: getHPPercentage(member) + '%' }"></div>
+                                            </div>
+                                            <span class="hp-value">{{ member.hp.current }}/{{ member.hp.max }}</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div class="empty-state" v-if="party.length === 0">
                         <h3>No Party Members</h3>
                         <p>Add party members to track their stats and status.</p>
                     </div>
@@ -582,7 +1059,25 @@
 
                 <!-- Encounter Manager -->
                 <div v-if="activeTab === 'encounters'">
-                    <div class="encounter-list" v-if="encounters.length > 0">
+                    <!-- View Toggle -->
+                    <div class="view-toggle-container">
+                        <div class="command-buttons">
+                            <button class="command-btn" @click="addEncounter">Add Encounter</button>
+                            <button class="command-btn" @click="importEncounter">Import</button>
+                            <button class="command-btn" @click="exportEncounters">Export</button>
+                        </div>
+                        <div class="toggle-switch">
+                            <div class="toggle-option" :class="{ active: encountersViewMode === 'cards' }" @click="encountersViewMode = 'cards'" title="Cards View">
+                                <i class="fas fa-grip"></i>
+                            </div>
+                            <div class="toggle-option" :class="{ active: encountersViewMode === 'table' }" @click="encountersViewMode = 'table'" title="Table View">
+                                <i class="fas fa-list"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cards View -->
+                    <div v-if="encountersViewMode === 'cards' && encounters.length > 0" class="encounter-list">
                         <div class="encounter-card" v-for="encounter in encounters" :key="encounter.id">
                             <div class="encounter-header">
                                 <div class="encounter-title">{{ encounter.name }}</div>
@@ -612,16 +1107,71 @@
                             </div>
                         </div>
                     </div>
-                    <div class="empty-state" v-else>
+
+                    <!-- Table View -->
+                    <div v-if="encountersViewMode === 'table' && encounters.length > 0">
+                        <table class="encounter-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Difficulty</th>
+                                    <th>Total XP</th>
+                                    <th>Adjusted XP</th>
+                                    <th>Map</th>
+                                    <th>Monsters</th>
+                                    <th class="actions-cell">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="encounter in encounters" :key="encounter.id">
+                                    <td class="name-cell">{{ encounter.name }}</td>
+                                    <td class="difficulty-cell">
+                                        <span :class="'difficulty-' + encounter.difficulty.toLowerCase()" style="padding: 4px 12px; border-radius: 12px;">
+                                            {{ encounter.difficulty }}
+                                        </span>
+                                    </td>
+                                    <td>{{ encounter.totalXP }}</td>
+                                    <td>{{ encounter.adjustedXP }}</td>
+                                    <td>{{ encounter.mapName || 'Not set' }}</td>
+                                    <td>{{ encounter.monsters.length }} type(s)</td>
+                                    <td class="actions-cell">
+                                        <button class="action-btn-small" @click="loadEncounter(encounter)" title="Load to Map">Load</button>
+                                        <button class="action-btn-small" @click="startEncounter(encounter)" title="Start Initiative">Start</button>
+                                        <button class="action-btn-small" @click="editEncounter(encounter)" title="Edit">Edit</button>
+                                        <button class="action-btn-small" @click="deleteEncounter(encounter)" title="Delete">Del</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div class="empty-state" v-if="encounters.length === 0">
                         <h3>No Encounters Prepared</h3>
                         <p>Create encounters to quickly load monsters onto the map.</p>
                     </div>
-                    <button class="add-button" @click="addEncounter" title="Add new encounter">+</button>
                 </div>
 
                 <!-- Location Manager -->
                 <div v-if="activeTab === 'locations'">
-                    <div class="location-grid" v-if="locations.length > 0">
+                    <!-- View Toggle -->
+                    <div class="view-toggle-container">
+                        <div class="command-buttons">
+                            <button class="command-btn" @click="addLocation">Add Location</button>
+                            <button class="command-btn" @click="importLocation">Import</button>
+                        </div>
+                        <div class="toggle-switch">
+                            <div class="toggle-option" :class="{ active: locationsViewMode === 'cards' }" @click="locationsViewMode = 'cards'" title="Cards View">
+                                <i class="fas fa-grip"></i>
+                            </div>
+                            <div class="toggle-option" :class="{ active: locationsViewMode === 'table' }" @click="locationsViewMode = 'table'" title="Table View">
+                                <i class="fas fa-list"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cards View -->
+                    <div v-if="locationsViewMode === 'cards' && locations.length > 0" class="location-grid">
                         <div class="location-card" v-for="location in locations" :key="location.id" @click="selectLocation(location)">
                             <img :src="location.image" :alt="location.name" class="location-image">
                             <div class="location-body">
@@ -645,11 +1195,110 @@
                             </div>
                         </div>
                     </div>
-                    <div class="empty-state" v-else>
+
+                    <!-- Table View -->
+                    <div v-if="locationsViewMode === 'table' && locations.length > 0">
+                        <table class="location-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                    <th>Region</th>
+                                    <th>Map</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="location in locations" :key="location.id" @click="selectLocation(location)">
+                                    <td class="name-cell">{{ location.name }}</td>
+                                    <td><span class="type-badge">{{ location.type }}</span></td>
+                                    <td>{{ location.description }}</td>
+                                    <td>{{ location.region || '-' }}</td>
+                                    <td>{{ location.mapName || '-' }}</td>
+                                    <td>
+                                        <span v-if="location.discovered !== undefined" 
+                                              class="status-badge" 
+                                              :class="location.discovered ? 'status-discovered' : 'status-undiscovered'">
+                                            {{ location.discovered ? 'Discovered' : 'Undiscovered' }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div class="empty-state" v-if="locations.length === 0">
                         <h3>No Locations</h3>
                         <p>Add locations to track places in your campaign world.</p>
                     </div>
-                    <button class="add-button" @click="addLocation" title="Add new location">+</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Character Modal -->
+        <div v-if="showAddCharacterModal" class="modal-overlay" @click.self="closeAddCharacterModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2 class="modal-title">Add New Character</h2>
+                    <button class="modal-close" @click="closeAddCharacterModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-input" v-model="newCharacter.name" placeholder="Character name">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Class</label>
+                            <input type="text" class="form-input" v-model="newCharacter.class" placeholder="Fighter, Wizard, etc.">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Level</label>
+                            <input type="number" class="form-input" v-model.number="newCharacter.level" min="1" max="20" placeholder="1-20">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Armor Class</label>
+                            <input type="number" class="form-input" v-model.number="newCharacter.ac" min="1" placeholder="AC">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Initiative Modifier</label>
+                            <input type="number" class="form-input" v-model.number="newCharacter.initiative" placeholder="+0">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Speed (ft)</label>
+                            <input type="number" class="form-input" v-model.number="newCharacter.speed" min="0" placeholder="30">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Passive Perception</label>
+                            <input type="number" class="form-input" v-model.number="newCharacter.passivePerception" min="1" placeholder="10">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Max HP</label>
+                            <input type="number" class="form-input" v-model.number="newCharacter.maxHP" min="1" placeholder="Max HP">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Current HP</label>
+                            <input type="number" class="form-input" v-model.number="newCharacter.currentHP" min="0" placeholder="Current HP">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Avatar URL</label>
+                        <input type="text" class="form-input" v-model="newCharacter.avatar" placeholder="../assets/tokens/avatar.webp">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-btn modal-btn-secondary" @click="closeAddCharacterModal">Cancel</button>
+                    <button class="modal-btn modal-btn-primary" @click="saveCharacter">Add Character</button>
                 </div>
             </div>
         </div>
@@ -665,6 +1314,22 @@
         data() {
             return {
                 activeTab: 'party',
+                partyViewMode: 'cards', // 'cards' or 'table'
+                encountersViewMode: 'cards', // 'cards' or 'table'
+                locationsViewMode: 'cards', // 'cards' or 'table'
+                showAddCharacterModal: false,
+                newCharacter: {
+                    name: '',
+                    class: '',
+                    level: 1,
+                    ac: 10,
+                    initiative: 0,
+                    speed: 30,
+                    passivePerception: 10,
+                    maxHP: 10,
+                    currentHP: 10,
+                    avatar: '../assets/tokens/default.webp'
+                },
                 party: [],
                 encounters: [],
                 locations: []
@@ -693,6 +1358,76 @@
                     Utils.focusToken(member.tokenId);
                 }
                 console.log('Selected party member:', member.name);
+            },
+
+            addCharacter() {
+                this.showAddCharacterModal = true;
+            },
+
+            closeAddCharacterModal() {
+                this.showAddCharacterModal = false;
+                this.resetCharacterForm();
+            },
+
+            resetCharacterForm() {
+                this.newCharacter = {
+                    name: '',
+                    class: '',
+                    level: 1,
+                    ac: 10,
+                    initiative: 0,
+                    speed: 30,
+                    passivePerception: 10,
+                    maxHP: 10,
+                    currentHP: 10,
+                    avatar: '../assets/tokens/default.webp'
+                };
+            },
+
+            saveCharacter() {
+                if (!this.newCharacter.name || !this.newCharacter.class) {
+                    alert('Please fill in at least the name and class fields.');
+                    return;
+                }
+
+                const character = {
+                    id: this.party.length > 0 ? Math.max(...this.party.map(p => p.id)) + 1 : 1,
+                    name: this.newCharacter.name,
+                    class: this.newCharacter.class,
+                    level: this.newCharacter.level,
+                    avatar: this.newCharacter.avatar,
+                    tokenId: `token-${Date.now()}`,
+                    ac: this.newCharacter.ac,
+                    initiative: this.newCharacter.initiative,
+                    speed: this.newCharacter.speed,
+                    passivePerception: this.newCharacter.passivePerception,
+                    hp: {
+                        current: this.newCharacter.currentHP,
+                        max: this.newCharacter.maxHP
+                    }
+                };
+
+                this.party.push(character);
+                this.closeAddCharacterModal();
+                
+                if (typeof MapTool !== 'undefined') {
+                    Utils.saveCharacter(character);
+                }
+            },
+
+            makeTokens() {
+                console.log('Making tokens for party members');
+                // TODO: Implement make tokens functionality
+            },
+
+            createPoll() {
+                console.log('Creating poll');
+                // TODO: Open create poll dialog
+            },
+
+            viewResults() {
+                console.log('Viewing poll results');
+                // TODO: Open results view
             },
 
             loadEncounter(encounter) {
@@ -731,6 +1466,16 @@
                 // TODO: Open add encounter dialog
             },
 
+            importEncounter() {
+                console.log('Importing encounter');
+                // TODO: Open import encounter dialog
+            },
+
+            exportEncounters() {
+                console.log('Exporting encounters');
+                // TODO: Implement export encounters functionality
+            },
+
             selectLocation(location) {
                 if (typeof MapTool !== 'undefined') {
                     Utils.loadMap(location.mapName);
@@ -744,6 +1489,11 @@
             addLocation() {
                 console.log('Adding new location');
                 // TODO: Open add location dialog
+            },
+
+            importLocation() {
+                console.log('Importing location');
+                // TODO: Open import location dialog
             },
 
             async loadData() {
