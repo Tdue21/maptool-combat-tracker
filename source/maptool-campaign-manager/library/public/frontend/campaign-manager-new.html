@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="./css/Blinddate.css?cachelib=false">
+    <link rel="stylesheet" type="text/css" href="./css/philosopher.css?cachelib=false">
+    <link rel="stylesheet" type="text/css" href="./css/main.css?cachelib=false">
+    <link rel="stylesheet" type="text/css" href="./css/campaign-manager.css?cachelib=false">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="./js/libs/vue.global-3.5.13.js"></script>
+    <script src="./js/tools.js?cachelib=false"></script>
+    <script src="./js/data-service.js?cachelib=false"></script>
+    <script src="./js/components/tab-navigation.js?cachelib=false"></script>
+    <script src="./js/components/party-manager.js?cachelib=false"></script>
+    <script src="./js/components/encounter-manager.js?cachelib=false"></script>
+    <script src="./js/components/location-manager.js?cachelib=false"></script>
+</head>
+
+<body>
+    <div id="app">
+        <div class="manager-container">
+            <!-- Tab Navigation Component -->
+            <tab-navigation
+                :active-tab="activeTab"
+                :tabs="tabs"
+                @update:active-tab="activeTab = $event">
+            </tab-navigation>
+
+            <!-- Tab Content with Keep-Alive for performance -->
+            <div class="tab-content">
+                <keep-alive>
+                    <component 
+                        :is="activeComponent">
+                    </component>
+                </keep-alive>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        "use strict";
+
+        const { createApp } = Vue;
+
+        const app = createApp({
+            data() {
+                return {
+                    activeTab: 'party',
+                    tabs: [
+                        { id: 'party', label: 'Party Manager', component: 'party-manager' },
+                        { id: 'encounters', label: 'Encounter Manager', component: 'encounter-manager' },
+                        { id: 'locations', label: 'Location Manager', component: 'location-manager' }
+                    ]
+                }
+            },
+            
+            computed: {
+                activeTabConfig() {
+                    return this.tabs.find(tab => tab.id === this.activeTab);
+                },
+                activeComponent() {
+                    return this.activeTabConfig?.component || null;
+                }
+            },
+
+            components: {
+                'tab-navigation': TabNavigation,
+                'party-manager': PartyManager,
+                'encounter-manager': EncounterManager,
+                'location-manager': LocationManager
+            }
+        });
+
+        app.mount('#app');
+    </script>
+</body>
+
+</html>
