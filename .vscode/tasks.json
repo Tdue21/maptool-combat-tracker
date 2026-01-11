@@ -40,7 +40,8 @@
       "default": "",
       "options": [
         "maptool-combat-tracker",
-        "maptool-campaign-manager"
+        "maptool-campaign-manager",
+        "maptool-storage-manager"
       ]
     },
     {
