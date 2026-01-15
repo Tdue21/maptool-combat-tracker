@@ -15,10 +15,13 @@ class DataStorage {
      */
     getObject(catalogName, objectKey, defaultValue = null) {
         try {
+            this._validateCatalogName(catalogName);
+            this._validateObjectKey(objectKey);
             const catalog = this.getCatalog(catalogName);
-            return catalog.hasOwnProperty(objectKey) ? catalog[objectKey] : defaultValue;
+            const value = Object.prototype.hasOwnProperty.call(catalog, objectKey) ? catalog[objectKey] : defaultValue;
+            return this._deepClone(value);
         } catch (error) {
-            handleException(error);
+            this._handleException("Error getting object", error);
             return defaultValue;
         }
     }
@@ -32,11 +35,13 @@ class DataStorage {
      */
     setObject(catalogName, objectKey, objectData) {
         try {
+            this._validateCatalogName(catalogName);
+            this._validateObjectKey(objectKey);
             let catalog = this.getCatalog(catalogName);
             catalog[objectKey] = objectData;
             return this.setCatalog(catalogName, catalog);
         } catch (error) {
-            handleException(error);
+            this._handleException("Error setting object", error);
             return false;
         }
     }
@@ -49,14 +54,16 @@ class DataStorage {
      */
     deleteObject(catalogName, objectKey) {
         try {
+            this._validateCatalogName(catalogName);
+            this._validateObjectKey(objectKey);
             let catalog = this.getCatalog(catalogName);
-            if (catalog.hasOwnProperty(objectKey)) {
+            if (Object.prototype.hasOwnProperty.call(catalog, objectKey)) {
                 delete catalog[objectKey];
                 return this.setCatalog(catalogName, catalog);
             }
             return true; // Already doesn't exist
         } catch (error) {
-            handleException(error);
+            this._handleException("Error deleting object", error);
             return false;
         }
     }
@@ -69,10 +76,12 @@ class DataStorage {
      */
     hasObject(catalogName, objectKey) {
         try {
+            this._validateCatalogName(catalogName);
+            this._validateObjectKey(objectKey);
             const catalog = this.getCatalog(catalogName);
-            return catalog.hasOwnProperty(objectKey);
+            return Object.prototype.hasOwnProperty.call(catalog, objectKey);
         } catch (error) {
-            handleException(error);
+            this._handleException("Error checking if object exists", error);
             return false;
         }
     }
@@ -85,18 +94,22 @@ class DataStorage {
      */
     findObjects(catalogName, predicate) {
         try {
+            this._validateCatalogName(catalogName);
+            if (typeof predicate !== 'function') {
+                throw new Error('Predicate must be a function');
+            }
             const catalog = this.getCatalog(catalogName);
             const results = {};
             
             for (const [key, value] of Object.entries(catalog)) {
                 if (predicate(value, key)) {
-                    results[key] = value;
+                    results[key] = this._deepClone(value);
                 }
             }
             
             return results;
         } catch (error) {
-            handleException(error);
+            this._handleException("Error finding objects", error);
             return {};
         }
     }
@@ -110,13 +123,21 @@ class DataStorage {
      */
     updateObjects(catalogName, transformer, filter = null) {
         try {
+            this._validateCatalogName(catalogName);
+            if (typeof transformer !== 'function') {
+                throw new Error('Transformer must be a function');
+            }
+            if (filter !== null && typeof filter !== 'function') {
+                throw new Error('Filter must be a function or null');
+            }
             let catalog = this.getCatalog(catalogName);
             let hasChanges = false;
             
             for (const [key, value] of Object.entries(catalog)) {
                 if (!filter || filter(value, key)) {
+                    const oldJson = JSON.stringify(value);
                     const newValue = transformer(value, key);
-                    if (newValue !== value) {
+                    if (JSON.stringify(newValue) !== oldJson) {
                         catalog[key] = newValue;
                         hasChanges = true;
                     }
@@ -125,7 +146,7 @@ class DataStorage {
             
             return hasChanges ? this.setCatalog(catalogName, catalog) : true;
         } catch (error) {
-            handleException(error);
+            this._handleException("Error updating objects", error);
             return false;
         }
     }
@@ -137,19 +158,21 @@ class DataStorage {
      */
     getCatalog(catalogName) {
         try {
-            MTScript.setVariable("name", catalogName);
-            MTScript.setVariable("ns", getNamespace());
+            this._validateCatalogName(catalogName);
+            MTScript.setVariable("_ds_name", catalogName);
+            MTScript.setVariable("_ds_ns", this._getNamespace());
             
-            const rawData = MTScript.evalMacro("[r:getLibProperty(name, ns)]");
+            const rawData = MTScript.evalMacro("[r:getLibProperty(_ds_name, _ds_ns)]");
             
             // Handle empty/non-existent tables
-            if (!rawData || rawData.trim() === "" || rawData.trim() === "[]") {
+            if (!rawData || rawData.trim() === "" || rawData.trim() === "{}") {
                 return {};
             }
             
             return JSON.parse(rawData);
         } catch (error) {
             // If parsing fails or property doesn't exist, return empty table
+            this._handleException("Error getting catalog", error);
             return {};
         }
     }
@@ -162,14 +185,25 @@ class DataStorage {
      */
     setCatalog(catalogName, catalogData) {
         try {
-            MTScript.setVariable("name", catalogName);
-            MTScript.setVariable("ns", getNamespace());
-            MTScript.setVariable("data", JSON.stringify(catalogData));
+            this._validateCatalogName(catalogName);
+            if (catalogData === null || catalogData === undefined) {
+                throw new Error('Catalog data cannot be null or undefined');
+            }
+            if (typeof catalogData !== 'object' || Array.isArray(catalogData)) {
+                throw new Error('Catalog data must be an object');
+            }
             
-            MTScript.evalMacro("[h:setLibProperty(name, data, ns)]");
+            const jsonData = JSON.stringify(catalogData);
+            this._validateDataSize(jsonData);
+            
+            MTScript.setVariable("_ds_name", catalogName);
+            MTScript.setVariable("_ds_ns", this._getNamespace());
+            MTScript.setVariable("_ds_data", jsonData);
+            
+            MTScript.evalMacro("[h:setLibProperty(_ds_name, _ds_data, _ds_ns)]");
             return true;
         } catch (error) {
-            handleException(error);
+            this._handleException("Error setting catalog", error);
             return false;
         }
     }
@@ -181,9 +215,10 @@ class DataStorage {
      */
     deleteCatalog(catalogName) {
         try {
+            this._validateCatalogName(catalogName);
             return this.setCatalog(catalogName, {});
         } catch (error) {
-            handleException(error);
+            this._handleException("Error deleting catalog", error);
             return false;
         }
     }
@@ -195,10 +230,11 @@ class DataStorage {
      */
     getObjectKeys(catalogName) {
         try {
+            this._validateCatalogName(catalogName);
             const catalog = this.getCatalog(catalogName);
             return Object.keys(catalog);
         } catch (error) {
-            handleException(error);
+            this._handleException("Error getting object keys", error);
             return [];
         }
     }
@@ -210,10 +246,11 @@ class DataStorage {
      */
     getObjectValues(catalogName) {
         try {
+            this._validateCatalogName(catalogName);
             const catalog = this.getCatalog(catalogName);
             return Object.values(catalog);
         } catch (error) {
-            handleException(error);
+            this._handleException("Error getting object values", error);
             return [];
         }
     }
@@ -225,10 +262,11 @@ class DataStorage {
      */
     getObjectCount(catalogName) {
         try {
+            this._validateCatalogName(catalogName);
             const catalog = this.getCatalog(catalogName);
             return Object.keys(catalog).length;
         } catch (error) {
-            handleException(error);
+            this._handleException("Error getting object count", error);
             return 0;
         }
     }
@@ -239,8 +277,8 @@ class DataStorage {
      */
     getCatalogNames() {
         try {
-            MTScript.setVariable("ns", getNamespace());
-            const rawResult = MTScript.evalMacro("[r:getLibPropertyNames(ns, 'json')]");
+            MTScript.setVariable("_ds_ns", this._getNamespace());
+            const rawResult = MTScript.evalMacro("[r:getLibPropertyNames(_ds_ns, 'json')]");
             
             if (!rawResult || rawResult.trim() === "" || rawResult.trim() === "[]") {
                 return [];
@@ -248,7 +286,7 @@ class DataStorage {
             
             return JSON.parse(rawResult);
         } catch (error) {
-            handleException(error);
+            this._handleException("Error getting catalog names", error);
             return [];
         }
     }
@@ -261,10 +299,12 @@ class DataStorage {
      */
     backupCatalog(sourceCatalog, backupCatalog) {
         try {
+            this._validateCatalogName(sourceCatalog);
+            this._validateCatalogName(backupCatalog);
             const catalogData = this.getCatalog(sourceCatalog);
             return this.setCatalog(backupCatalog, catalogData);
         } catch (error) {
-            handleException(error);
+            this._handleException("Error backing up catalog", error);
             return false;
         }
     }
@@ -278,20 +318,110 @@ class DataStorage {
      */
     mergeCatalogs(sourceCatalog, targetCatalog, overwrite = false) {
         try {
+            this._validateCatalogName(sourceCatalog);
+            this._validateCatalogName(targetCatalog);
             const source = this.getCatalog(sourceCatalog);
             let target = this.getCatalog(targetCatalog);
             
             for (const [key, value] of Object.entries(source)) {
-                if (overwrite || !target.hasOwnProperty(key)) {
+                if (overwrite || !Object.prototype.hasOwnProperty.call(target, key)) {
                     target[key] = value;
                 }
             }
             
             return this.setCatalog(targetCatalog, target);
         } catch (error) {
-            handleException(error);
+            this._handleException("Error merging catalogs", error);
             return false;
         }
+    }
+
+    /**
+     * Validate a catalog name
+     * @param {string} catalogName - The catalog name to validate
+     * @throws {Error} If catalog name is invalid
+     * @private
+     */
+    _validateCatalogName(catalogName) {
+        if (catalogName === null || catalogName === undefined) {
+            throw new Error('Catalog name cannot be null or undefined');
+        }
+        if (typeof catalogName !== 'string') {
+            throw new Error('Catalog name must be a string');
+        }
+        if (catalogName.trim() === '') {
+            throw new Error('Catalog name cannot be empty');
+        }
+        // Check for invalid characters that might break MTScript
+        if (/[\[\]{}"'\\]/.test(catalogName)) {
+            throw new Error('Catalog name contains invalid characters: []{}"\'\\');
+        }
+    }
+
+    /**
+     * Validate an object key
+     * @param {string} objectKey - The object key to validate
+     * @throws {Error} If object key is invalid
+     * @private
+     */
+    _validateObjectKey(objectKey) {
+        if (objectKey === null || objectKey === undefined) {
+            throw new Error('Object key cannot be null or undefined');
+        }
+        if (typeof objectKey !== 'string') {
+            throw new Error('Object key must be a string');
+        }
+        if (objectKey.trim() === '') {
+            throw new Error('Object key cannot be empty');
+        }
+    }
+
+    /**
+     * Validate data size to prevent excessive memory usage
+     * @param {string} jsonData - The JSON stringified data
+     * @throws {Error} If data exceeds size limit
+     * @private
+     */
+    _validateDataSize(jsonData) {
+        const MAX_SIZE = 10 * 1024 * 1024; // 10MB limit
+        const size = jsonData.length;
+        if (size > MAX_SIZE) {
+            throw new Error(`Catalog data size (${(size / 1024 / 1024).toFixed(2)}MB) exceeds maximum allowed size (10MB)`);
+        }
+    }
+
+    /**
+     * Deep clone an object to prevent mutation of stored data
+     * @param {*} obj - Object to clone
+     * @returns {*} Deep cloned object
+     * @private
+     */
+    _deepClone(obj) {
+        if (obj === null || typeof obj !== 'object') {
+            return obj;
+        }
+        return JSON.parse(JSON.stringify(obj));
+    }
+
+    /**
+     * 
+     * @returns 
+     */
+    _getNamespace() {
+        MTScript.execMacro(`[h:_ds_ns = replace(getMacroLocation(), "lib:", "")]`);
+        const ns = MTScript.getVariable("_ds_ns");
+        return ns;
+    }
+
+    /**
+     * 
+     * @param {*} message 
+     * @param {*} error 
+     */
+    _handleException(message, error) {
+        MapTool.chat.broadcast(`${message} Error:
+            Message: ${error.message}
+            Stack: ${error.stack}`);
     }
 }
 
@@ -304,10 +434,13 @@ MTScript.registerMacro("db.setObject", dataStorage.setObject.bind(dataStorage));
 MTScript.registerMacro("db.deleteObject", dataStorage.deleteObject.bind(dataStorage));
 MTScript.registerMacro("db.hasObject", dataStorage.hasObject.bind(dataStorage));
 MTScript.registerMacro("db.findObjects", dataStorage.findObjects.bind(dataStorage));
+MTScript.registerMacro("db.updateObjects", dataStorage.updateObjects.bind(dataStorage));
 
 MTScript.registerMacro("db.getCatalog", dataStorage.getCatalog.bind(dataStorage));
 MTScript.registerMacro("db.setCatalog", dataStorage.setCatalog.bind(dataStorage));
 MTScript.registerMacro("db.deleteCatalog", dataStorage.deleteCatalog.bind(dataStorage));
+MTScript.registerMacro("db.backupCatalog", dataStorage.backupCatalog.bind(dataStorage));
+MTScript.registerMacro("db.mergeCatalogs", dataStorage.mergeCatalogs.bind(dataStorage));
 
 MTScript.registerMacro("db.getObjectKeys", dataStorage.getObjectKeys.bind(dataStorage));
 MTScript.registerMacro("db.getObjectValues", dataStorage.getObjectValues.bind(dataStorage));
