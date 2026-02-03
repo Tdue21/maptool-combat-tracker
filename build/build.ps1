@@ -27,7 +27,7 @@ if(($null -ne $version) -And ("" -ne $version)) {
 Compress-Archive -Path $libraryPath\* -DestinationPath "$zipDestination" -Force
 
 if(Test-Path -Path "$finalDestination") {
-    Remove-Item -Path "$finalDestination"
+    Remove-Item -Path "$finalDestination"f
 }
 
 # Finalizing

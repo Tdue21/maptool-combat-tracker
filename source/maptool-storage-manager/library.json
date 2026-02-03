@@ -7,9 +7,9 @@
   "description": "A longer description of your add-on library",
   "version": "0.0.1",
   "readMeFile": "readme.md",
-  "namespace": "org.maptool.thoma.maptool-storage-manager",
-  "name": "maptool-storage-manager",
-  "license": "MIT/GPL/etc",
+  "namespace": "dovesoft.storage-manager",
+  "name": "MapTool Storage Manager",
+  "license": "MIT",
   "website": "",
   "licenseFile": "license.txt",
   "shortDescription": "A short description of your add-on library"

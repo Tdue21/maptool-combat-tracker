@@ -328,7 +328,6 @@ class DataStorage {
                     target[key] = value;
                 }
             }
-            
             return this.setCatalog(targetCatalog, target);
         } catch (error) {
             this._handleException("Error merging catalogs", error);

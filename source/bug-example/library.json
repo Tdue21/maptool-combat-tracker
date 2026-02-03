@@ -1,0 +1,16 @@
+{
+  "gitUrl": "",
+  "allowsUriAccess": true,
+  "name": "bug-example",
+  "licenseFile": "license.txt",
+  "website": "",
+  "shortDescription": "A short description of your add-on library",
+  "version": "0.0.1",
+  "description": "A longer description of your add-on library",
+  "readMeFile": "readme.md",
+  "license": "MIT/GPL/etc",
+  "namespace": "org.maptool.thoma.bug-example",
+  "authors": [
+    "thoma"
+  ]
+}

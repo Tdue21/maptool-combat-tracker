@@ -2,11 +2,11 @@
   "legacyEvents": [],
   "events": [
     {
-      "name": "onFirstInit.mts",
+      "name": "onFirstInit",
       "mts": "events/onFirstInit"
     },
     {
-      "name": "onInit.mts",
+      "name": "onInit",
       "mts": "events/onInit"
     }
   ]
